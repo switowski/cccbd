@@ -91,6 +91,9 @@ CFG_CCCBD_MARC_FIELDS_ALLOWED = {
 CFG_CCCBD_MARC_FIELDS_MINIMUM = {
 }
 
+# Pattern for checking pagination in subfield 773__c
+PATTERN_PAGINATION = re.compile('(?:[0-9IVX]{1,4}|[0-9IVX]{1,4}-[0-9IVX]{1,4})$')
+
 
 def _check_marc_content(datafield, subfield, value,
                         current_language, current_volume, current_issue,
@@ -149,9 +152,7 @@ def _check_marc_content(datafield, subfield, value,
 
     elif datafield == "773__":
         if subfield == "c":
-            # TODO: move the patern compilation out of the function
-            pattern_pagination = re.compile('(?:[0-9IVX]{1,4}|[0-9IVX]{1,4}-[0-9IVX]{1,4})$')
-            result = pattern_pagination.match(value) is not None
+            result = PATTERN_PAGINATION.match(value) is not None
         elif subfield == "n":
             result = value == current_issue
         elif subfield == "p":
@@ -201,6 +202,14 @@ def _report(message, exit=False, warn=False, info=False):
         print "%s: %s" % ("INFORMATION", message)
     else:
         print message
+
+def test_assertion(assertion, message):
+    """
+    We are using this function to report all errors (it replaced the assert
+    statement, which was catching just the first error in try/except clause)
+    """
+    if not assertion:
+        _report(message, warn = True)
 
 def run():
     """
@@ -307,7 +316,7 @@ def run():
                 dirpath, dirnames, filenames = directory_walk.next()
 
                 current_dir = dirpath.split(os.path.sep)[-1]
-    
+
                 # For the first iteration over the directory make sure we are in the CERN Courier or exit
                 if first_iteration_p:
                     if current_dir in CFG_CCCBD_PUBLICATIONS:
@@ -323,10 +332,10 @@ def run():
                         first_iteration_p = False
                     else:
                         _report("This is not a valid starting directory : %s" % (dirpath,), exit = True)
-                        
+
                 if current_dir in CFG_CCCBD_LANGUAGES:
                     for dirname in dirnames:
-                        if dirname.isdigit:
+                        if dirname.isdigit():
                             continue
                         _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
                     current_language = current_dir
@@ -469,73 +478,70 @@ def run():
                                 tmp_file = os.path.sep.join((dirpath, filename))
                                 try:
                                     xml = etree.parse(tmp_file)
-                                    try:
-                                        # keep all the marc tags (datafields & subfields) found in this file in this dictionary for later checks
-                                        tmp_file_marc_tags = {}
+                                    # keep all the marc tags (datafields & subfields) found in this file in this dictionary for later checks
+                                    tmp_file_marc_tags = {}
 
-                                        # Check if the file encoding is correct
-                                        assert ( xml.docinfo.encoding == "UTF-8" ), "[XML] Wrong encoding (%s) in %s" % (xml.docinfo.encoding, os.path.sep.join((dirpath, filename)))
+                                    # Check if the file encoding is correct
+                                    test_assertion(xml.docinfo.encoding == "UTF-8" , "[XML] Wrong encoding (%s) in %s" % (xml.docinfo.encoding, os.path.sep.join((dirpath, filename))))
 
-                                        # Check if the root element:
-                                        xml_root = xml.getroot()
-                                        # is correct
-                                        assert ( xml_root.tag == "record" ), "[XML] Wrong root element (%s) in %s" % (xml_root.tag, os.path.sep.join((dirpath, filename)))
-                                        # has no overflowing text anywhere
-                                        assert ( xml_root.text.strip() == "" ), "[XML] Extra text (%s) in the root element in %s" % (xml_root.text.strip(), os.path.sep.join((dirpath, filename)))
-                                        # has no attributes
-                                        assert ( xml_root.attrib == {} ), "[XML] Extra attributes (%s) in the root element in %s" % (str(xml_root.attrib), os.path.sep.join((dirpath, filename)))
+                                    # Check if the root element:
+                                    xml_root = xml.getroot()
+                                    # is correct
+                                    test_assertion(xml_root.tag == "record" , "[XML] Wrong root element (%s) in %s" % (xml_root.tag, os.path.sep.join((dirpath, filename))))
+                                    # has no overflowing text anywhere
+                                    test_assertion(xml_root.text.strip() == "" , "[XML] Extra text (%s) in the root element in %s" % (xml_root.text.strip(), os.path.sep.join((dirpath, filename))))
+                                    # has no attributes
+                                    test_assertion(xml_root.attrib == {} , "[XML] Extra attributes (%s) in the root element in %s" % (str(xml_root.attrib), os.path.sep.join((dirpath, filename))))
 
-                                        # Go through all the root's children and check:
-                                        xml_datafields = xml_root.iterchildren()
-                                        for xml_datafield in xml_datafields:
-                                            # if they are all datafields
-                                            assert ( xml_datafield.tag == "datafield" ), "[XML] Wrong datafield element (%s) in %s" % (xml_datafield.tag, os.path.sep.join((dirpath, filename)))
+                                    # Go through all the root's children and check:
+                                    xml_datafields = xml_root.iterchildren()
+                                    for xml_datafield in xml_datafields:
+                                        # if they are all datafields
+                                        test_assertion(xml_datafield.tag == "datafield" , "[XML] Wrong datafield element (%s) in %s" % (xml_datafield.tag, os.path.sep.join((dirpath, filename))))
+                                        # if they have any overflowing text anywhere
+                                        test_assertion(xml_datafield.text.strip() == "" , "[XML] Extra text (%s) in a datafield element in %s" % (xml_datafield.text.strip(), os.path.sep.join((dirpath, filename))))
+                                        test_assertion(xml_datafield.tail.strip() == "" , "[XML] Extra text (%s) in a datafield element in %s" % (xml_datafield.tail.strip(), os.path.sep.join((dirpath, filename))))
+                                        # if they have the expected attributes
+                                        assert ( sorted(xml_datafield.keys()) == ['ind1', 'ind2', 'tag'] ), "[XML] Extra attributes (%s) in a datafield element in %s" % (str(xml_datafield.attrib), os.path.sep.join((dirpath, filename)))
+                                        # if they are valid datafields
+                                        tmp_file_datafield = ''.join([xml_datafield.attrib[key] for key in ('tag', 'ind1', 'ind2')]).replace(' ', '_')
+                                        test_assertion(tmp_file_datafield in CFG_CCCBD_MARC_FIELDS_ALLOWED , "[XML] Unexpected datafield element tag (%s) in %s" % (tmp_file_datafield, os.path.sep.join((dirpath, filename))))
+
+                                        # this is now a valid datafield, so add it to the dictionary of marc tags found in this file
+                                        tmp_file_marc_tags[tmp_file_datafield] = []
+
+                                        # Go through all of each datafield's children and check:
+                                        xml_subfields = xml_datafield.iterchildren()
+                                        tmp_file_datafield_allowed_subfields = CFG_CCCBD_MARC_FIELDS_ALLOWED[tmp_file_datafield]
+                                        for xml_subfield in xml_subfields:
+                                            # if they are all subfields
+                                            test_assertion(xml_subfield.tag == "subfield" , "[XML] Wrong subfield element (%s) in %s" % (xml_subfield.tag, os.path.sep.join((dirpath, filename))))
                                             # if they have any overflowing text anywhere
-                                            assert ( xml_datafield.text.strip() == "" ), "[XML] Extra text (%s) in a datafield element in %s" % (xml_datafield.text.strip(), os.path.sep.join((dirpath, filename)))
-                                            assert ( xml_datafield.tail.strip() == "" ), "[XML] Extra text (%s) in a datafield element in %s" % (xml_datafield.tail.strip(), os.path.sep.join((dirpath, filename)))
+                                            test_assertion(xml_subfield.tail.strip() == "" , "[XML] Extra text (%s) in a subfield element in %s" % (xml_subfield.tail.strip(), os.path.sep.join((dirpath, filename))))
                                             # if they have the expected attributes
-                                            assert ( sorted(xml_datafield.keys()) == ['ind1', 'ind2', 'tag'] ), "[XML] Extra attributes (%s) in a datafield element in %s" % (str(xml_datafield.attrib), os.path.sep.join((dirpath, filename)))
-                                            # if they are valid datafields
-                                            tmp_file_datafield = ''.join([xml_datafield.attrib[key] for key in ('tag', 'ind1', 'ind2')]).replace(' ', '_')
-                                            assert ( tmp_file_datafield in CFG_CCCBD_MARC_FIELDS_ALLOWED ), "[XML] Unexpected datafield element tag (%s) in %s" % (tmp_file_datafield, os.path.sep.join((dirpath, filename)))
+                                            test_assertion(xml_subfield.keys() == ['code'] , "[XML] Extra attributes (%s) in a subfield element in %s" % (str(xml_subfield.attrib), os.path.sep.join((dirpath, filename))))
+                                            # if they are valid subfields
+                                            tmp_file_subfield = xml_subfield.attrib['code']
+                                            test_assertion(tmp_file_subfield in tmp_file_datafield_allowed_subfields , "[XML] Unexpected subfield element code (%s) in %s" % (str(tmp_file_subfield), os.path.sep.join((dirpath, filename))))
+                                            # if their content is valid
+                                            (result, error) = _check_marc_content(tmp_file_datafield, tmp_file_subfield, xml_subfield.text,
+                                                                                  current_language, current_volume, current_issue,
+                                                                                  directory, is_courier, is_bulletin)
+                                            test_assertion(result is True , "[XML] %s in %s" % (error, os.path.sep.join((dirpath, filename))))
 
-                                            # this is now a valid datafield, so add it to the dictionary of marc tags found in this file
-                                            tmp_file_marc_tags[tmp_file_datafield] = []
+                                            # this is now a valid subfield, so add it to the dictionary of marc tags found in this file
+                                            tmp_file_marc_tags[tmp_file_datafield].append(tmp_file_subfield)
 
-                                            # Go through all of each datafield's children and check:
-                                            xml_subfields = xml_datafield.iterchildren()
-                                            tmp_file_datafield_allowed_subfields = CFG_CCCBD_MARC_FIELDS_ALLOWED[tmp_file_datafield]
-                                            for xml_subfield in xml_subfields:
-                                                # if they are all subfields
-                                                assert ( xml_subfield.tag == "subfield" ), "[XML] Wrong subfield element (%s) in %s" % (xml_subfield.tag, os.path.sep.join((dirpath, filename)))
-                                                # if they have any overflowing text anywhere
-                                                assert ( xml_subfield.tail.strip() == "" ), "[XML] Extra text (%s) in a subfield element in %s" % (xml_subfield.tail.strip(), os.path.sep.join((dirpath, filename)))
-                                                # if they have the expected attributes
-                                                assert ( xml_subfield.keys() == ['code'] ), "[XML] Extra attributes (%s) in a subfield element in %s" % (str(xml_subfield.attrib), os.path.sep.join((dirpath, filename)))
-                                                # if they are valid subfields
-                                                tmp_file_subfield = xml_subfield.attrib['code']
-                                                assert ( tmp_file_subfield in tmp_file_datafield_allowed_subfields ), "[XML] Unexpected subfield element code (%s) in %s" % (str(tmp_file_subfield), os.path.sep.join((dirpath, filename)))
-                                                # if their content is valid
-                                                (result, error) = _check_marc_content(tmp_file_datafield, tmp_file_subfield, xml_subfield.text,
-                                                                                      current_language, current_volume, current_issue,
-                                                                                      directory, is_courier, is_bulletin)
-                                                assert ( result is True ), "[XML] %s in %s" % (error, os.path.sep.join((dirpath, filename)))
+                                        # if the datafield has children (subfields)
+                                        test_assertion(len(tmp_file_marc_tags[tmp_file_datafield]) > 0 , "[XML] No subfields defined for datafield element tag (%s) in %s" % (tmp_file_datafield, os.path.sep.join((dirpath, filename))))
 
-                                                # this is now a valid subfield, so add it to the dictionary of marc tags found in this file
-                                                tmp_file_marc_tags[tmp_file_datafield].append(tmp_file_subfield)
+                                    # Check that all the marc tags (datafields & subfields) found in this file respect the CFG_CCCBD_MARC_FIELDS_MINIMUM
+                                    for datafield in CFG_CCCBD_MARC_FIELDS_MINIMUM:
+                                        subfields = tmp_file_marc_tags.pop(datafield, None)
+                                        test_assertion(subfields is not None , "[XML] Mandatory datafield (%s) missing in %s" % (datafield, os.path.sep.join((dirpath, filename))))
+                                        for subfield in CFG_CCCBD_MARC_FIELDS_MINIMUM[datafield]:
+                                            test_assertion(subfield in subfields , "[XML] Mandatory subfield (%s) for datafield (%s) missing in %s" % (subfield, datafield, os.path.sep.join((dirpath, filename))))
 
-                                            # if the datafield has children (subfields)
-                                            assert ( len(tmp_file_marc_tags[tmp_file_datafield]) > 0 ), "[XML] No subfields defined for datafield element tag (%s) in %s" % (tmp_file_datafield, os.path.sep.join((dirpath, filename)))
-
-                                        # Check that all the marc tags (datafields & subfields) found in this file respect the CFG_CCCBD_MARC_FIELDS_MINIMUM
-                                        for datafield in CFG_CCCBD_MARC_FIELDS_MINIMUM:
-                                            subfields = tmp_file_marc_tags.pop(datafield, None)
-                                            assert ( subfields is not None ), "[XML] Mandatory datafield (%s) missing in %s" % (datafield, os.path.sep.join((dirpath, filename)))
-                                            for subfield in CFG_CCCBD_MARC_FIELDS_MINIMUM[datafield]:
-                                                assert ( subfield in subfields ), "[XML] Mandatory subfield (%s) for datafield (%s) missing in %s" % (subfield, datafield, os.path.sep.join((dirpath, filename)))
-
-                                    except AssertionError, e:
-                                        _report("%s [%s]" % (e, "only the first error was returned"), warn = True)
                                 except etree.XMLSyntaxError:
                                     _report("[XML] Invalid syntax in %s" % (os.path.sep.join((dirpath, filename)),), warn = True)
 
