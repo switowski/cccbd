@@ -98,7 +98,7 @@ PATTERN_PAGINATION = re.compile('(?:[0-9IVX]{1,4}|([0-9IVX]{1,4})-([0-9IVX]{1,4}
 
 def _check_marc_content(datafield, subfield, value,
                         current_language, current_volume, current_issue,
-                        directory, is_courier, is_bulletin):
+                        current_year, directory, is_courier, is_bulletin):
     """
     """
 
@@ -127,8 +127,7 @@ def _check_marc_content(datafield, subfield, value,
 
     elif datafield == "260__":
         if subfield == "c":
-            # TODO: Should we check for the year of the directory?
-            result = value.isdigit() and ( len(value) == 4 )
+            result = value == current_year
 
     elif datafield == "269__":
         if subfield == "a":
@@ -177,7 +176,7 @@ def _check_marc_content(datafield, subfield, value,
             result = value == current_volume
         elif subfield == "y":
             # TODO: Should we check for the year of the directory?
-            result = value.isdigit() and ( len(value) == 4 )
+            result = value == current_year
 
     elif datafield == "980__":
         if subfield == "a":
@@ -298,7 +297,7 @@ def run():
 
             first_iteration_p = True
 
-            current_language, current_volume, current_issue = (None, ) * 3
+            current_language, current_volume, current_issue, current_year = (None, ) * 4
 
             pattern_volume_issue_dir = re.compile('vol(\d+)-issue(\d+|\d+-\d+)$')
 
@@ -354,17 +353,19 @@ def run():
 
                 if current_dir in CFG_CCCBD_LANGUAGES:
                     for dirname in dirnames:
-                        if dirname.isdigit():
+                        if dirname.isdigit() or dirname == "1959-60":
+                            # Hackish solution for this one specific directory
                             continue
                         _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
                     current_language = current_dir
 
-                elif current_dir.isdigit():
+                elif current_dir.isdigit() or current_dir == "1959-60":
                     for dirname in dirnames:
                         if pattern_volume_issue_dir.match(dirname) is not None:
                             continue
                         _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
                     current_volume, current_issue = (None, ) * 2
+                    current_year = not current_dir.isdigit() and "1959-1960" or current_dir
 
                 elif pattern_volume_issue_dir.match(current_dir) is not None:
                     for dirname in dirnames:
@@ -545,7 +546,7 @@ def run():
                                             # if their content is valid
                                             (result, error) = _check_marc_content(tmp_file_datafield, tmp_file_subfield, xml_subfield.text,
                                                                                   current_language, current_volume, current_issue,
-                                                                                  directory, is_courier, is_bulletin)
+                                                                                  current_year, directory, is_courier, is_bulletin)
                                             test_assertion(result is True , "[XML] %s in %s" % (error, os.path.sep.join((dirpath, filename))))
 
                                             # this is now a valid subfield, so add it to the dictionary of marc tags found in this file
