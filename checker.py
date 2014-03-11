@@ -92,7 +92,8 @@ CFG_CCCBD_MARC_FIELDS_MINIMUM = {
 }
 
 # Pattern for checking pagination in subfield 773__c
-PATTERN_PAGINATION = re.compile('(?:[0-9IVX]{1,4}|[0-9IVX]{1,4}-[0-9IVX]{1,4})$')
+#PATTERN_PAGINATION = re.compile('(?:[0-9IVX]{1,4}|[0-9IVX]{1,4}-[0-9IVX]{1,4})$')
+PATTERN_PAGINATION = re.compile('(?:[0-9IVX]{1,4}|([0-9IVX]{1,4})-([0-9IVX]{1,4}))$')
 
 
 def _check_marc_content(datafield, subfield, value,
@@ -152,7 +153,16 @@ def _check_marc_content(datafield, subfield, value,
 
     elif datafield == "773__":
         if subfield == "c":
-            result = PATTERN_PAGINATION.match(value) is not None
+            page_match = PATTERN_PAGINATION.match(value)
+            result = page_match is not None
+            # In case there is a page range match (example: "25-26"), make sure that the
+            # starting page is lower than the ending page. Don't check for Roman numbers.
+            if result:
+                page_start, page_end = page_match.groups()
+                if ( page_start is not None and page_end is not None ) and \
+                   ( page_start.isdigit() and page_end.isdigit() ) and \
+                   ( int(page_start) >= int(page_end) ):
+                    result = False
         elif subfield == "n":
             result = value == current_issue
         elif subfield == "p":
@@ -175,6 +185,15 @@ def _check_marc_content(datafield, subfield, value,
                      ( is_bulletin and value == "BULLETINARCHIVE" )
 
     elif datafield == "FFT__":
+        if subfield == "a":
+            result = os.path.isfile(os.path.sep.join((directory, value)))
+        elif subfield == "t":
+            result = value == "Figures"
+        elif subfield == "d":
+            pass
+
+    # NOTE: Accept FTT for now to avoid the huge amount of errors
+    elif datafield == "FTT__":
         if subfield == "a":
             result = os.path.isfile(os.path.sep.join((directory, value)))
         elif subfield == "t":
