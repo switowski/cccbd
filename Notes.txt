@@ -1,0 +1,200 @@
+WARNING: [XML] Incorrect value (1959-1960) in 260__c in /dfs/cern.ch/COURRIER CERN/E/1959-60/vol1-issue1/XML/vol1-issue1-p001a-e.xml
+WARNING: [XML] Incorrect value (1959-1960) in 773__y in /dfs/cern.ch/COURRIER CERN/E/1959-60/vol1-issue1/XML/vol1-issue1-p001a-e.xml
+the year should be either 1959 or 1960, not 1959-1960
+
+WARNING: [XML] Incorrect value (GENEVA) in 269__a in /dfs/cern.ch/COURRIER CERN/E/1959-60/vol1-issue10/XML/vol1-issue10-p002a-e.xml
+WARNING: [XML] Incorrect value (GENEVE) in 269__a in /dfs/cern.ch/COURRIER CERN/E/1977/vol17-issue3/XML/vol17-issue3-p058-e.xml
+WARNING: [XML] Incorrect value (europe) in 269__a in /dfs/cern.ch/COURRIER CERN/E/1992/vol32-issue1/XML/vol32-issue1-p001-e.xml
+WARNING: [XML] Incorrect value (Europe) in 269__a in /dfs/cern.ch/COURRIER CERN/E/1992/vol32-issue3/XML/vol32-issue3-p001-e.xml
+WARNING: [XML] Incorrect value (Switzerland) in 269__a in /dfs/cern.ch/COURRIER CERN/E/1988/vol28-issue2/XML/vol28-issue2-p001-e.xml
+WARNING: [XML] Incorrect value (janewa) in 269__a in /dfs/cern.ch/COURRIER CERN/F/1959-60/vol1-issue2/XML/vol1-issue2-p001-f.xml
+WARNING: [XML] Incorrect value (genava) in 269__a in /dfs/cern.ch/COURRIER CERN/F/1962/vol2-issue2/XML/vol2-issue2-p010-f.xml
+WARNING: [XML] Incorrect value () in 269__a in /dfs/cern.ch/COURRIER CERN/F/1983/vol23-issue1/XML/vol23-issue1-p003-f.xml
+WARNING: [XML] Incorrect value (Genewa) in 269__a in /dfs/cern.ch/COURRIER CERN/F/1984/vol24-issue1/XML/vol24-issue1-p003-f.xml
+it should be Geneva
+
+WARNING: [XML] Incorrect value (Geneve) in 269__a in /dfs/cern.ch/COURRIER CERN/F/1971/vol11-issue1/XML/vol11-issue1-p003-f.xml
+WARNING: [XML] Incorrect value (Genéve) in 269__a in /dfs/cern.ch/COURRIER CERN/F/1973/vol13-issue10/XML/vol13-issue10-p291-f.xml
+it should be Genève, not Geneve or Genéve or any other combination
+
+WARNING: [XML] Incorrect value (fr) in 041__a in /dfs/cern.ch/COURRIER CERN/E/1985/vol25-issue7/XML/vol25-issue7-p263-e.xml
+WARNING: [XML] Incorrect value (Genèva) in 269__a in /dfs/cern.ch/COURRIER CERN/E/1985/vol25-issue7/XML/vol25-issue7-p263-e.xml
+it should be "en" and "Geneva" respectively (since it a directory with English version of the courier)
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1959-60/vol1-issue6-7/TIFF : vol1-issue6-7-p003-e.tif
+F/1993/vol33-issue1/TIFF: vol33-issue1-V.tifff
+file extension should be tiff, not tif and not tifff
+
+WARNING: [XML] Incorrect value (Figure) in FFT__t in /dfs/cern.ch/COURRIER CERN/E/1962/vol2-issue1/XML/vol2-issue1-p004-e.xml
+it should be Figures, not Figure
+
+WARNING: [XML] Incorrect value (E/1966/vol6-issue10/article-wise/vol6-issue10-p191-e.pdf) in FFT__a in /dfs/cern.ch/COURRIER CERN/E/1966/vol6-issue10/XML/vol6-issue10-p191-e.xml
+it should be E/1966/vol6-issue10/PDF/vol6-issue10-p191-e.pdf not E/1966/vol6-issue10/article-wise/vol6-issue10-p191-e.pdf (the /article-wise directory is redundant)
+
+WARNING: [XML] Incorrect value (E/1968/vol8-issue6/PDF/vol8-issue11-p263-e.pdf) in FFT__a in /dfs/cern.ch/COURRIER CERN/E/1968/vol8-issue11/XML/vol8-issue11-p263-e.xml
+the file paths for FFT fields are referring completely different directory it should E/1968/vol8-issue11/PDF/vol8-issue11-p263-e.pdf, not E/1968/vol8-issue6/PDF/vol8-issue11-p263-e.pdf (this is a very common error and, unlike the wrong metadata, it will make bibuploads fail)
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1966/vol6-issue2/PDF : vol6-issue-covers.pdf
+WARNING: The PDF covers file is missing in /dfs/cern.ch/COURRIER CERN/E/1966/vol6-issue2/PDF
+the pdf covers file should be named vol6-issue2-covers.pdf
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1966/vol6-issue5/PDF : vol6-issue5-toc-e.pdf
+WARNING: The PDF toc file is missing in /dfs/cern.ch/COURRIER CERN/E/1966/vol6-issue5/PDF
+the toc file should be named vol6-issue5-toc.pdf, not vol6-issue5-toc-e.pdf
+
+WARNING: [XML] Incorrect value (1981) in 260__c in /dfs/cern.ch/COURRIER CERN/E/1977/vol17-issue9/XML/vol17-issue9-p271-e.xml
+WARNING: [XML] Incorrect value (1981) in 773__y in /dfs/cern.ch/COURRIER CERN/E/1977/vol17-issue9/XML/vol17-issue9-p271-e.xml
+wrong year, it should be 1977
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1968/vol8-issue9/PDF : vol8-issue09.pdf
+it should be vol8-issue9.pdf, not vol8-issue09.pdf
+
+WARNING: [XML] Incorrect value (7 10) in 773__n in /dfs/cern.ch/COURRIER CERN/E/1972/vol12-issue10/XML/vol12-issue10-p315-e.xml
+it should be 10, not 7 10
+
+WARNING: [XML] Incorrect value (1987) in 773__n in /dfs/cern.ch/COURRIER CERN/E/1987/vol27-issue1/XML/vol27-issue1-p007-e.xml
+it should be 1, not 1987
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1972/vol12-issue11/PNG : vol12-issue11-p373figas.png
+it should be vol12-issue11-p373figa.png, not vol12-issue11-p373figas.png
+
+WARNING: [XML] Incorrect value (208a) in 773__c in /dfs/cern.ch/COURRIER CERN/E/1972/vol12-issue6/XML/vol12-issue6-p208a-e.xml
+it should be 208, not 208a
+
+WARNING: [XML] Incorrect value (E/1973/vol13-issue9/PDF/vol13-issue10-p303-e.pdf) in FFT__a in /dfs/cern.ch/COURRIER CERN/E/1973/vol13-issue10/XML/vol13-issue10-p303-e.xml
+again, wrong directory, it should be E/1973/vol13-issue10/PDF/vol13-issue10-p303-e.pdf, not E/1973/vol13-issue9/PDF/vol13-issue10-p303-e.pdf
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1975/vol15-issue5/OCR : vol15-issue5-p155-e..ocr
+files should have one dot instead of two before the extensions
+
+WARNING: [XML] Incorrect value (12) in 773__v in /dfs/cern.ch/COURRIER CERN/E/1973/vol13-issue7-8/XML/vol13-issue7-8-p221b-e.xml
+it should be 7-8, not 12
+
+WARNING: [XML] Incorrect value (Courrier CERN) in 773__p in /dfs/cern.ch/COURRIER CERN/E/1975/vol15-issue1/XML/vol15-issue1-p003-e.xml
+it should be CERN Courier, not Courrier CERN
+
+WARNING: [XML] Incorrect value (E/1977/vol17-issue9/PDF/vol17-issue11-p363-e.pdf) in FFT__a in /dfs/cern.ch/COURRIER CERN/E/1977/vol17-issue11/XML/vol17-issue11-p363-e.xml
+it should be E/1977/vol17-issue11/PDF/vol17-issue11-p363-e.pdf, not E/1977/vol17-issue9/PDF/vol17-issue11-p363-e.pdf
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1981/vol21-issue1/TIFF : vol21-issue1-covers-e.tiff
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1981/vol21-issue1/TIFF : vol21-issue1-toc-e.tiff
+WARNING: The TIFF covers file is missing in /dfs/cern.ch/COURRIER CERN/E/1981/vol21-issue1/TIFF
+WARNING: The TIFF toc file is missing in /dfs/cern.ch/COURRIER CERN/E/1981/vol21-issue1/TIFF
+instead of vol21-issue1-covers-e.tiff and vol21-issue1-toc-e.tiff, those files should be named vol21-issue1-covers.tiff and vol21-issue1-toc.tiff
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/F/1993/vol33-issue5/PDF : vol33-issue5-toc-f.pdf
+WARNING: The PDF toc file is missing in /dfs/cern.ch/COURRIER CERN/F/1993/vol33-issue5/PDF
+toc file should be name vol33-issue5-toc.pdf, not vol33-issue5-toc-f.pdf
+
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1981/vol21-issue3/PDF : Binder3.pdf
+WARNING: The PDF issue file is missing in /dfs/cern.ch/COURRIER CERN/E/1981/vol21-issue3/PDF
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1981/vol21-issue5/PDF : Binder5.pdf
+WARNING: The PDF issue file is missing in /dfs/cern.ch/COURRIER CERN/E/1981/vol21-issue5/PDF
+Binder3.pdf and Binder5.pdf should be named vol21-issue3.pdf and vol21-issue5.pdf
+
+WARNING: [XML] Incorrect value () in 773__v in /dfs/cern.ch/COURRIER CERN/E/1981/vol21-issue6/XML/vol21-issue6-p235-e.xml
+there should be volume number in field 773__v (so 21 in this case)
+
+WARNING: The PDF issue file is missing in /dfs/cern.ch/COURRIER CERN/E/1986/vol26-issue3/PDF
+WARNING: The PDF covers file is missing in /dfs/cern.ch/COURRIER CERN/E/1986/vol26-issue3/PDF
+WARNING: The PDF toc file is missing in /dfs/cern.ch/COURRIER CERN/E/1986/vol26-issue3/PDF
+WARNING: The PDF covers file is missing in /dfs/cern.ch/COURRIER CERN/F/1990/vol30-issue4/PDF
+WARNING: The TIFF toc file is missing in /dfs/cern.ch/COURRIER CERN/F/1996/vol36-issue6/TIFF
+WARNING: The TIFF toc file is missing in /dfs/cern.ch/COURRIER CERN/F/1996/vol36-issue8/TIFF
+files are missing !
+
+WARNING: [XML] Incorrect value (CERN Courier, April 1992) in 773__p in /dfs/cern.ch/COURRIER CERN/E/1992/vol32-issue3/XML/vol32-issue3-p003-e.xml
+it should be CERN Courier, not CERN Courier, April 1992
+
+WARNING: [XML] Incorrect value (Physics monitor) in 980__a in /dfs/cern.ch/COURRIER CERN/E/1994/vol34-issue6/XML/vol34-issue6-p019-e.xml
+it should be COURIERARCHIVE
+
+WARNING: [XML] Incorrect value (F/1970/vol10-issue3/PDF/vol10-issue3-p082-f.pdf) in FFT__a in /dfs/cern.ch/COURRIER CERN/F/1970/vol10-issue3/XML/vol10-issue3-p082-f.xml
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/F/1970/vol10-issue3/PDF : vol10-issue3.p071-f.pdf
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/F/1970/vol10-issue3/PDF : vol10-issue3.p078-f.pdf
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/F/1970/vol10-issue3/PDF : vol10-issue3.p082-f.pdf
+some files have dots in names instead of dashes: vol10-issue3.p082-f.pdf, vol10-issue3.p078-f.pdf, vol10-issue3.p071-f.pdf
+
+WARNING: [XML] Incorrect value (CERN Courier) in 773__p in /dfs/cern.ch/COURRIER CERN/F/1970/vol10-issue3/XML/vol10-issue3-p084b-f.xml
+WARNING: [XML] Incorrect value (en) in 041__a in /dfs/cern.ch/COURRIER CERN/F/1970/vol10-issue3/XML/vol10-issue3-p085-f.xml
+WARNING: [XML] Incorrect value (Geneva) in 269__a in /dfs/cern.ch/COURRIER CERN/F/1970/vol10-issue3/XML/vol10-issue3-p085-f.xml
+all of the metadata is for English version but it should be for French version
+
+WARNING: [XML] Incorrect value () in 690__a in /dfs/cern.ch/COURRIER CERN/F/1973/vol13-issue4/XML/vol13-issue4-p103-f.xml
+WARNING: [XML] Incorrect value (CERN`) in 690__a in /dfs/cern.ch/COURRIER CERN/F/1995/vol35-issue7/XML/vol35-issue7-p001-f.xml
+it should be CERN, not CERN` or empty
+
+WARNING: [XML] Incorrect value (35b-35b) in 773__c in /dfs/cern.ch/COURRIER CERN/F/1975/vol15-issue2/XML/vol15-issue2-p035a-f.xml
+it should be 35, not 35b-35b
+
+WARNING: [XML] Incorrect value (3,4,8) in 773__c in /dfs/cern.ch/COURRIER CERN/F/1959-60/vol1-issue13-14/XML/vol1-issue13-14-p003b-f.xml
+it should be pagination, so it can't be 3 numbers
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/F/1979/vol19-issue1/PDF : Vol19-issue1.pdf
+file name should be lower case
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/F/1979/vol19-issue1/TIFF : volVol19-issue1-toc.tiff
+wrong file name, it should be vol19-issue1-toc.tiff
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1984/vol24-issue8/TIFF : vol24-issue8-I.tiff
+file name should be vol24-issue8-I-e.tiff
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/F/1967/vol7-issue8/OCR : vol7-issue8-p153-ff.ocr
+file name should be vol7-issue8-p153-f.ocr
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/F/1969/vol9-issue3/PDF : vol9-issue.pdf
+file name should be vol9-issue3.pdf
+
+WARNING: The TIFF covers file is missing in /dfs/cern.ch/COURRIER CERN/F/1977/vol17-issue1-2/TIFF
+WARNING: The TIFF toc file is missing in /dfs/cern.ch/COURRIER CERN/F/1977/vol17-issue1-2/TIFF
+Those files are missing (and we should have them, because we have covers and toc in PDF format)
+
+WARNING: [XML] Incorrect value (F/vol18-issue1-2/PNG/vol18-issue1-2-p006figa.png) in FTT__a in /dfs/cern.ch/COURRIER CERN/F/1978/vol18-issue1-2/XML/vol18-issue1-2-p003-f.xml
+Wrong path, year is missing in the path (it should be F/1978/vol18-issue1-2/PNG/vol18-issue1-2-p006figa.png)
+
+
+
+
+OTHER:
+/dfs/cern.ch/COURRIER CERN/E/1968/vol8-issue11/XML/vol8-issue11-p263-e.xml
+At the very end of the file:
+H Horizontal field magne*
+letter "t" was not properly OCR-ed
+
+
+
+<datafield tag="773" ind2=" " ind1=" ">
+<subfield code="c">34-35a</subfield>
+<subfield code="n"> 2</subfield>
+Trim those whitespaces
+
+
+
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1990/vol30-issue3/TIFF : vol30-issue3-VIII-e.tif
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1990/vol30-issue7/OCR : vol30-issue7-VII-e.ocr
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1990/vol30-issue7/PDF : vol30-issue7-VII-e.pdf
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1990/vol30-issue7/PNG : vol30-issue7-VIIcaptions.xml
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1990/vol30-issue7/PNG : vol30-issue7-VIIfig.png
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1990/vol30-issue7/PNG : vol30-issue7-VIIfigcaption.txt
+WARNING: There is an unexpected file in /dfs/cern.ch/COURRIER CERN/E/1990/vol30-issue7/XML : vol30-issue7-VII-e.xml
+
+COURRIER CERN/E/1990/vol30-issue7/OCR/vol30-issue7-VII-e.ocr
+COURRIER CERN/E/1990/vol30-issue7/PDF/vol30-issue7-VII-e.pdf
+COURRIER CERN/E/1990/vol30-issue7/PNG/vol30-issue7-VIIcaptions.xml
+COURRIER CERN/E/1990/vol30-issue7/PNG/vol30-issue7-VIIfig.png
+COURRIER CERN/E/1990/vol30-issue7/XML/vol30-issue7-VII-e.xml
+COURRIER CERN/F/1990/vol30-issue7/OCR/vol30-issue7-VII-f.ocr
+COURRIER CERN/F/1990/vol30-issue7/PDF/vol30-issue7-VII-f.pdf
+COURRIER CERN/F/1990/vol30-issue7/PNG/vol30-issue7-VII.png
+COURRIER CERN/F/1990/vol30-issue7/PNG/vol30-issue7-VIIcaptions.xml
+COURRIER CERN/F/1990/vol30-issue7/XML/vol30-issue7-VII-f.xml
+That's an article, remember to upload it to the CDS !
+
+COURRIER CERN/F/1984/vol24-issue8/PNG/vol24-issue8-IXcaptions.xml
+COURRIER CERN/F/1984/vol24-issue8/PNG/vol24-issue8-IXfig.png
+COURRIER CERN/F/1984/vol24-issue8/PNG/vol24-issue8-VIIIcaptions.xml
+COURRIER CERN/F/1984/vol24-issue8/PNG/vol24-issue8-VIIIfig.png
+COURRIER CERN/F/1984/vol24-issue8/PNG/vol24-issue8-Xcaptions.xml
+COURRIER CERN/F/1984/vol24-issue8/PNG/vol24-issue8-Xfiga.png
+COURRIER CERN/F/1984/vol24-issue8/PNG/vol24-issue8-Xfigb.png
