@@ -127,7 +127,10 @@ def _check_marc_content(datafield, subfield, value,
 
     elif datafield == "260__":
         if subfield == "c":
-            result = value == current_year
+            if current_year == "1959-60":
+                result = value == "1959" or value == "1960"
+            else:
+                result = value == current_year and len(current_year) == 4
 
     elif datafield == "269__":
         if subfield == "a":
@@ -175,8 +178,10 @@ def _check_marc_content(datafield, subfield, value,
         elif subfield == "v":
             result = value == current_volume
         elif subfield == "y":
-            # TODO: Should we check for the year of the directory?
-            result = value == current_year
+            if current_year == "1959-60":
+                result = value == "1959" or value == "1960"
+            else:
+                result = value == current_year and len(current_year) == 4
 
     elif datafield == "980__":
         if subfield == "a":
@@ -365,7 +370,7 @@ def run():
                             continue
                         _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
                     current_volume, current_issue = (None, ) * 2
-                    current_year = not current_dir.isdigit() and "1959-1960" or current_dir
+                    current_year = current_dir
 
                 elif pattern_volume_issue_dir.match(current_dir) is not None:
                     for dirname in dirnames:
