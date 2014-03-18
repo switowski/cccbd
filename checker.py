@@ -35,6 +35,9 @@ CFG_CCCBD_FORMATS = (
     CFG_CCCBD_FORMATS_PNG,
 )
 
+# Set this to False to ignore a lot of "Incorrect value () in ..." warnings
+CFG_NO_EMPTY_FIELDS = False
+
 CFG_CCCBD_MARC_FIELDS_ALLOWED = {
     '041__' : (
         'a',
@@ -115,15 +118,21 @@ def _check_marc_content(datafield, subfield, value,
 
     elif datafield == "100__":
         if subfield == "a":
-            pass
+            if CFG_NO_EMPTY_FIELDS:
+                # This field can't be empty
+                result = len(value) > 0
 
     elif datafield == "245__":
         if subfield == "a":
-            result = len(value) > 0
+            if CFG_NO_EMPTY_FIELDS:
+                # This field can't be empty
+                result = len(value) > 0
 
     elif datafield == "246__":
         if subfield == "a":
-            pass
+            if CFG_NO_EMPTY_FIELDS:
+                # This field can't be empty
+                result = len(value) > 0
 
     elif datafield == "260__":
         if subfield == "c":
@@ -143,11 +152,15 @@ def _check_marc_content(datafield, subfield, value,
 
     elif datafield == "520__":
         if subfield == "b":
-            pass
+            if CFG_NO_EMPTY_FIELDS:
+                # This field can't be empty
+                result = len(value) > 0
 
     elif datafield == "590__":
         if subfield == "b":
-            pass
+            if CFG_NO_EMPTY_FIELDS:
+                # This field can't be empty
+                result = len(value) > 0
 
     elif datafield == "690__":
         if subfield == "a":
@@ -194,7 +207,9 @@ def _check_marc_content(datafield, subfield, value,
         elif subfield == "t":
             result = value == "Figures"
         elif subfield == "d":
-            pass
+            if CFG_NO_EMPTY_FIELDS:
+                # This field can't be empty
+                result = len(value) > 0
 
     # NOTE: Accept FTT for now to avoid the huge amount of errors
     elif datafield == "FTT__":
@@ -203,7 +218,9 @@ def _check_marc_content(datafield, subfield, value,
         elif subfield == "t":
             result = value == "Figures"
         elif subfield == "d":
-            pass
+            if CFG_NO_EMPTY_FIELDS:
+                # This field can't be empty
+                result = len(value) > 0
 
     else:
         (result, error) = (True, "")
@@ -211,7 +228,8 @@ def _check_marc_content(datafield, subfield, value,
     if not result:
         error = "Incorrect value (%s) in %s%s" % (value, datafield, subfield)
 
-    return (result, error) 
+    return (result, error)
+
 
 def _report(message, exit=False, warn=False, info=False):
     """
@@ -537,7 +555,7 @@ def run():
 
                                         # Go through all of each datafield's children and check:
                                         xml_subfields = xml_datafield.iterchildren()
-                                        tmp_file_datafield_allowed_subfields = CFG_CCCBD_MARC_FIELDS_ALLOWED[tmp_file_datafield]
+                                        tmp_file_datafield_allowed_subfields = CFG_CCCBD_MARC_FIELDS_ALLOWED.get(tmp_file_datafield, "")
                                         for xml_subfield in xml_subfields:
                                             # if they are all subfields
                                             test_assertion(xml_subfield.tag == "subfield" , "[XML] Wrong subfield element (%s) in %s" % (xml_subfield.tag, os.path.sep.join((dirpath, filename))))
