@@ -93,6 +93,20 @@ CFG_CCCBD_MARC_FIELDS_ALLOWED = {
 }
 CFG_CCCBD_MARC_FIELDS_MINIMUM = {
 }
+# Some warnings should be ignored in the output but we should remember them later
+CORNER_CASE_WARNINGS_TO_IGNORE = [
+"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-IXcaptions.xml",
+"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-IXfig.png",
+"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-IXfigcaption.txt",
+"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-pvol24figacaption.txt",
+"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-VIIIcaptions.xml",
+"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-VIIIfig.png",
+"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-VIIIfigcaption.txt",
+"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xcaptions.xml",
+"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xfiga.png",
+"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xfigacaption.txt",
+"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xfigb.png",
+"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xfigbcaption.txt"]
 
 # Pattern for checking pagination in subfield 773__c
 #PATTERN_PAGINATION = re.compile('(?:[0-9IVX]{1,4}|[0-9IVX]{1,4}-[0-9IVX]{1,4})$')
@@ -234,7 +248,8 @@ def _check_marc_content(datafield, subfield, value,
 def _report(message, exit=False, warn=False, info=False):
     """
     """
-
+    if message in CORNER_CASE_WARNINGS_TO_IGNORE:
+        return
     if exit:
         sys.exit("%s: %s" % ("ERROR", message))
     elif warn:
