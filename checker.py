@@ -113,6 +113,77 @@ CORNER_CASE_WARNINGS_TO_IGNORE = [
 PATTERN_PAGINATION = re.compile('(?:[0-9IVX]{1,4}|([0-9IVX]{1,4})-([0-9IVX]{1,4}))$')
 
 
+def _check_if_file_exists_in_other_language(filename, filetype, directory):
+    """
+    """
+    current_file = os.path.sep.join((directory, filename))
+    # Change language folder (if we are in folder /E/, change it to /F/ and vice versa)
+    # And change the "-e" to "-f" and vice versa in file name
+    if filetype == CFG_CCCBD_FORMATS_TIFF:
+        # Ignore TIFF files since English version of courier has different publicities than French version,
+        # which results in different TIFF files in both directories
+        return
+    if current_file.find("/E/") != -1:
+        other_file = current_file.replace("/E/", "/F/")
+        other_file = other_file.replace("-e.", "-f.")
+    else:
+        other_file = current_file.replace("/F/", "/E/")
+        other_file = other_file.replace("-f.", "-e.")
+    if not os.path.isfile(other_file):
+        _report("[%s] File: %s does not exist in other language" % (filetype, current_file), warn = True)
+
+
+def _execute_on_each_file(filename, filetype, directory):
+    """
+    This function is executed for each file.
+    You can put more functions here, depending on, for example, the file type.
+    This function was created because I was too lazy to refactor all those
+    "elif current_dir == CFG_CCCBD_FORMATS_PDF:" statements.
+    @param filename: name of the current filename
+    @type filename: string
+    @param filetype: type of the current filename (PDF, XML, etc.)
+    @type filetype: string
+    @param directory: name of the current directory
+    @type directory: string
+
+    """
+    # _check_if_file_exists_in_other_language(filename, filetype, directory)
+    pass
+
+def _execute_on_each_directory(current_dir, dirpath):
+    """
+    Similar to the _execute_on_each_file, but this function is executed once
+    inside each PDF, PNG, TIFF, etc. directory
+    @param current_dir: name of the directory (for example PDF, TIFF, PNG, etc.)
+    @type current_dir: string
+    @param dirpath: path to the current directory
+    @type dirpath: string
+    """
+    # compare_number_of_files(dirpath)
+    pass
+
+def compare_number_of_files(directory):
+    """
+    Function that compares the number of files in English and French version of
+    a directory and prints a warning when they are different
+    """
+    if directory.find("/E/") != -1:
+        other_directory = directory.replace("/E/", "/F/")
+    else:
+        other_directory = directory.replace("/F/", "/E/")
+    number_of_files_in_dirrectory = len([name for name in os.listdir(directory) \
+                                         if os.path.isfile(os.sep.join((directory, name)))])
+    try:
+        number_of_files_in_other_dirrectory = len([name for name in os.listdir(other_directory)\
+                                                   if os.path.isfile(os.sep.join((other_directory, name)))])
+    except OSError:
+        # the other_directory doesn't exists
+        return
+    if number_of_files_in_dirrectory != number_of_files_in_other_dirrectory:
+        _report("There are %s file in %s and %s files in %s" %\
+               (number_of_files_in_dirrectory, directory,
+                number_of_files_in_other_dirrectory, other_directory), warn=True)
+
 def _check_marc_content(datafield, subfield, value,
                         current_language, current_volume, current_issue,
                         current_year, directory, is_courier, is_bulletin):
@@ -422,6 +493,7 @@ def run():
                     current_volume, current_issue = pattern_volume_issue_dir.match(current_dir).groups()
 
                 elif current_dir == CFG_CCCBD_FORMATS_TIFF:
+                    _execute_on_each_directory(current_dir, dirpath)
                     if dirnames:
                         for dirname in dirnames:
                             _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
@@ -429,6 +501,7 @@ def run():
                         _report("There was a problem detecting the current language", exit = True)
                     tiff_covers_p, tiff_toc_p = (False, ) * 2
                     for filename in filenames:
+                        _execute_on_each_file(filename, current_dir, dirpath)
                         tiff_file_page_match = pattern_tiff_file_page.match(filename)
                         if tiff_file_page_match is not None:
                             try:
@@ -459,6 +532,7 @@ def run():
                         _report("The TIFF toc file is missing in %s" % (dirpath,), warn = True)
 
                 elif current_dir == CFG_CCCBD_FORMATS_PDF:
+                    _execute_on_each_directory(current_dir, dirpath)
                     if dirnames:
                         for dirname in dirnames:
                             _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
@@ -466,6 +540,7 @@ def run():
                         _report("There was a problem detecting the current language", exit = True)
                     pdf_issue_p, pdf_covers_p, pdf_toc_p = (False, ) * 3
                     for filename in filenames:
+                        _execute_on_each_file(filename, current_dir, dirpath)
                         pdf_file_page_match = pattern_pdf_file_page.match(filename)
                         if pdf_file_page_match is not None:
                             try:
@@ -506,12 +581,14 @@ def run():
                         _report("The PDF toc file is missing in %s" % (dirpath,), warn = True)
 
                 elif current_dir == CFG_CCCBD_FORMATS_OCR:
+                    _execute_on_each_directory(current_dir, dirpath)
                     if dirnames:
                         for dirname in dirnames:
                             _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
                     if current_language is None:
                         _report("There was a problem detecting the current language", exit = True)
                     for filename in filenames:
+                        _execute_on_each_file(filename, current_dir, dirpath)
                         ocr_file_page_match = pattern_ocr_file_page.match(filename)
                         if ocr_file_page_match is not None:
                             try:
@@ -522,12 +599,14 @@ def run():
                             _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
 
                 elif current_dir == CFG_CCCBD_FORMATS_XML:
+                    _execute_on_each_directory(current_dir, dirpath)
                     if dirnames:
                         for dirname in dirnames:
                             _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
                     if current_language is None:
                         _report("There was a problem detecting the current language", exit = True)
                     for filename in filenames:
+                        _execute_on_each_file(filename, current_dir, dirpath)
                         xml_file_page_match = pattern_xml_file_page.match(filename)
                         if xml_file_page_match is not None:
                             try:
@@ -609,11 +688,13 @@ def run():
                             _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
 
                 elif current_dir == CFG_CCCBD_FORMATS_PNG:
+                    _execute_on_each_directory(current_dir, dirpath)
                     if dirnames:
                         for dirname in dirnames:
                             _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
                     # TODO: check that for each PNG file there is an .xml and a .txt file
                     for filename in filenames:
+                        _execute_on_each_file(filename, current_dir, dirpath)
                         png_file_fig_match = pattern_png_file_fig.match(filename)
                         if png_file_fig_match is not None:
                             try:
