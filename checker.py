@@ -667,7 +667,7 @@ def run():
                                             test_assertion(xml_subfield.keys() == ['code'] , "[XML] Extra attributes (%s) in a subfield element in %s" % (str(xml_subfield.attrib), os.path.sep.join((dirpath, filename))))
                                             # if they are valid subfields
                                             tmp_file_subfield = xml_subfield.attrib['code']
-                                            test_assertion(tmp_file_subfield in tmp_file_datafield_allowed_subfields , "[XML] Unexpected subfield element code (%s) in %s" % (str(tmp_file_subfield), os.path.sep.join((dirpath, filename))))
+                                            test_assertion(tmp_file_subfield in tmp_file_datafield_allowed_subfields , "[XML] Unexpected subfield element code (%s) in datafield %s in %s" % (str(tmp_file_subfield), tmp_file_datafield, os.path.sep.join((dirpath, filename))))
                                             # if their content is valid
                                             (result, error) = _check_marc_content(tmp_file_datafield, tmp_file_subfield, xml_subfield.text,
                                                                                   current_language, current_volume, current_issue,
@@ -908,7 +908,7 @@ def run():
                                             test_assertion(xml_subfield.keys() == ['code'] , "[XML] Extra attributes (%s) in a subfield element in %s" % (str(xml_subfield.attrib), os.path.sep.join((dirpath, filename))))
                                             # if they are valid subfields
                                             tmp_file_subfield = xml_subfield.attrib['code']
-                                            test_assertion(tmp_file_subfield in tmp_file_datafield_allowed_subfields , "[XML] Unexpected subfield element code (%s) in %s" % (str(tmp_file_subfield), os.path.sep.join((dirpath, filename))))
+                                            test_assertion(tmp_file_subfield in tmp_file_datafield_allowed_subfields , "[XML] Unexpected subfield element code (%s) in datafield %s in %s" % (str(tmp_file_subfield), tmp_file_datafield, os.path.sep.join((dirpath, filename))))
                                             # if their content is valid
                                             (result, error) = _check_marc_content(tmp_file_datafield, tmp_file_subfield, xml_subfield.text,
                                                                                   current_language, current_volume, current_issue,
