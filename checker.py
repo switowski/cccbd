@@ -36,7 +36,7 @@ CFG_CCCBD_FORMATS = (
 )
 
 # Set this to False to ignore a lot of "Incorrect value () in ..." warnings
-CFG_NO_EMPTY_FIELDS = False
+CFG_NO_EMPTY_FIELDS = True
 
 CFG_CCCBD_MARC_FIELDS_ALLOWED = {
     '041__' : (
