@@ -97,19 +97,27 @@ CFG_CCCBD_MARC_FIELDS_ALLOWED = {
 CFG_CCCBD_MARC_FIELDS_MINIMUM = {
 }
 # Some warnings should be ignored in the output but we should remember them later
+# British at CERN and a deceased person
 CORNER_CASE_WARNINGS_TO_IGNORE = [
-"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-IXcaptions.xml",
-"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-IXfig.png",
-"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-IXfigcaption.txt",
-"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-pvol24figacaption.txt",
-"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-VIIIcaptions.xml",
-"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-VIIIfig.png",
-"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-VIIIfigcaption.txt",
-"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xcaptions.xml",
-"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xfiga.png",
-"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xfigacaption.txt",
-"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xfigb.png",
-"There is an unexpected file in COURRIER CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xfigbcaption.txt"]
+"There is an unexpected file in COURRIER_CERN/F/1984/vol24-issue8/PNG : vol24-issue8-IXcaptions.xml",
+"There is an unexpected file in COURRIER_CERN/F/1984/vol24-issue8/PNG : vol24-issue8-IXfig.png",
+"There is an unexpected file in COURRIER_CERN/F/1984/vol24-issue8/PNG : vol24-issue8-IXfigcaption.txt",
+"There is an unexpected file in COURRIER_CERN/F/1984/vol24-issue8/PNG : vol24-issue8-pvol24figacaption.txt",
+"There is an unexpected file in COURRIER_CERN/F/1984/vol24-issue8/PNG : vol24-issue8-VIIIcaptions.xml",
+"There is an unexpected file in COURRIER_CERN/F/1984/vol24-issue8/PNG : vol24-issue8-VIIIfig.png",
+"There is an unexpected file in COURRIER_CERN/F/1984/vol24-issue8/PNG : vol24-issue8-VIIIfigcaption.txt",
+"There is an unexpected file in COURRIER_CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xcaptions.xml",
+"There is an unexpected file in COURRIER_CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xfiga.png",
+"There is an unexpected file in COURRIER_CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xfigacaption.txt",
+"There is an unexpected file in COURRIER_CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xfigb.png",
+"There is an unexpected file in COURRIER_CERN/F/1984/vol24-issue8/PNG : vol24-issue8-Xfigbcaption.txt",
+"There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1990/vol30-issue7/OCR : vol30-issue7-VII-e.ocr",
+"There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1990/vol30-issue7/PDF : vol30-issue7-VII-e.pdf",
+"There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1990/vol30-issue7/PNG : vol30-issue7-VIIcaptions.xml",
+"There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1990/vol30-issue7/PNG : vol30-issue7-VIIfig.png",
+"There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1990/vol30-issue7/PNG : vol30-issue7-VIIfigcaption.txt",
+"There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1990/vol30-issue7/XML : vol30-issue7-VII-e.xml",
+"There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1993/vol33-issue7/TIFF : vol33-issue7-v-e.tiff"]
 
 # Pattern for checking pagination in subfield 773__c
 #PATTERN_PAGINATION = re.compile('(?:[0-9IVX]{1,4}|[0-9IVX]{1,4}-[0-9IVX]{1,4})$')
@@ -272,7 +280,8 @@ def _check_marc_content(datafield, subfield, value,
                    ( int(page_start) >= int(page_end) ):
                     result = False
         elif subfield == "n":
-            result = value == current_issue
+            # Issue numbers should not have leading "0"
+            result = value == current_issue.lstrip("0")
         elif subfield == "p":
             result = ( is_courier  and ( ( current_language.lower() == "e" and value == "CERN Courier"  ) or \
                                          ( current_language.lower() == "f" and value == "Courrier CERN" ) ) ) or \
@@ -731,16 +740,16 @@ def run():
 
             current_language, current_volume, current_issue, current_year = (None, ) * 4
 
-            pattern_volume_issue_dir = re.compile('(\d{2}(?:-\d{2})?)-(\d{4})$') # 03-1996 or 51-52-1996
+            pattern_volume_issue_dir = re.compile('(\d{2}(?:-\d{2})?(?:bis)?)-(\d{4})$') # 03-1996 or 51-52-1996
 
-            pattern_tiff_file_page   = re.compile('(\d{2}(?:-\d{2})?)-(\d{4})-(?:p\d+[a-z]?|[IVX]{1,4})\.tiff$')
+            pattern_tiff_file_page   = re.compile('(\d{2}(?:-\d{2})?(?:bis)?)-(\d{4})-(?:p\d+[a-z]?|[IVX]{1,4})\.tiff$')
 
-            pattern_pdf_file_page   = re.compile('(\d{2}(?:-\d{2})?)-(\d{4})-(?:p\d+[a-z]?|[IVX]{1,4})\.pdf$')
-            pattern_pdf_file_issue  = re.compile('(\d{2}(?:-\d{2})?)-(\d{4})\.pdf$')
+            pattern_pdf_file_page   = re.compile('(\d{2}(?:-\d{2})?(?:bis)?)-(\d{4})-(?:p\d+[a-z]?|[IVX]{1,4})\.pdf$')
+            pattern_pdf_file_issue  = re.compile('(\d{2}(?:-\d{2})?(?:bis)?)-(\d{4})\.pdf$')
 
-            pattern_ocr_file_page = re.compile('(\d{2}(?:-\d{2})?)-(\d{4})-(?:p\d+[a-z]?|[IVX]{1,4})\.ocr$')
+            pattern_ocr_file_page = re.compile('(\d{2}(?:-\d{2})?(?:bis)?)-(\d{4})-(?:p\d+[a-z]?|[IVX]{1,4})\.ocr$')
 
-            pattern_xml_file_page = re.compile('(\d{2}(?:-\d{2})?)-(\d{4})-(?:p\d+[a-z]?|[IVX]{1,4})\.xml$')
+            pattern_xml_file_page = re.compile('(\d{2}(?:-\d{2})?(?:bis)?)-(\d{4})-(?:p\d+[a-z]?|[IVX]{1,4})\.xml$')
 
             while True:
 
