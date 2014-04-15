@@ -8,7 +8,7 @@ from optparse import OptionParser
 from lxml import etree
 
 CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN = 'CERN_BULLETIN'
-CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'COURRIER_CERN'
+CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'FIXED_COURRIER_CERN'
 CFG_CCCBD_PUBLICATIONS = (
     CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN,
     CFG_CCCBD_PUBLICATIONS_CERN_COURRIER,
@@ -116,8 +116,7 @@ CORNER_CASE_WARNINGS_TO_IGNORE = [
 "There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1990/vol30-issue7/PNG : vol30-issue7-VIIcaptions.xml",
 "There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1990/vol30-issue7/PNG : vol30-issue7-VIIfig.png",
 "There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1990/vol30-issue7/PNG : vol30-issue7-VIIfigcaption.txt",
-"There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1990/vol30-issue7/XML : vol30-issue7-VII-e.xml",
-"There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1993/vol33-issue7/TIFF : vol33-issue7-v-e.tiff"]
+"There is an unexpected file in /dfs/cern.ch/COURRIER_CERN/E/1990/vol30-issue7/XML : vol30-issue7-VII-e.xml"]
 
 # Pattern for checking pagination in subfield 773__c
 #PATTERN_PAGINATION = re.compile('(?:[0-9IVX]{1,4}|[0-9IVX]{1,4}-[0-9IVX]{1,4})$')

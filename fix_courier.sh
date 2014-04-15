@@ -42,17 +42,6 @@ do
 
     # if it's XML:
     if [ "$d" == "XML" ]; then
-    # Remove lines with empty subfields
-        sed -i "/<subfield code=\".\"><\/subfield>/d" $f
-    # Also a different pattern for empty lines
-        sed -i 'N;/<subfield code=\".\">\n    <\/subfield>/d;P;D;' $f
-    # And another one
-        sed -i "/    <subfield code=\".\" \/>/d" $f
-    # Remove empty fields that we might have just created
-    # I have no idea what kind of magic is happening here with this ;P;D but it took me 2 hours to make this pattern and it's working
-        sed -i "N;/<datafield tag=\".\{3\}\" ind2=\" \" ind1=\" \">\n <\/datafield>/d;P;D;" $f
-    # Again, different pattern for empty fields
-        sed -i "N;/<datafield tag=\".\{3\}\" ind2=\" \" ind1=\" \">\n  <\/datafield>/d;P;D;" $f
     # Replace 41__ with 041__:
         sed -i "s/<datafield tag=\"41\" ind2=\" \" ind1=\" \">/<datafield tag=\"041\" ind2=\" \" ind1=\" \">/" $f
     # Fix predefined fields:
@@ -62,29 +51,56 @@ do
         else
             sed -i "N;s/<datafield tag=\"041\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">.*<\/subfield>/<datafield tag=\"041\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">fr<\/subfield>/;P;D;" $f
         fi
+
         # 269__a and 269__b Publication place and publisher name
         if [ "$lang" == "e" ]; then
             sed -i "N;s/<datafield tag=\"269\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">.*<\/subfield>/<datafield tag=\"269\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">Geneva<\/subfield>/;P;D;" $f
         else
             sed -i "N;s/<datafield tag=\"269\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">.*<\/subfield>/<datafield tag=\"269\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">Genève<\/subfield>/;P;D;" $f
         fi
+
         # 690__a Subject indicator
             sed -i "N;s/<datafield tag=\"690\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">.*<\/subfield>/<datafield tag=\"690\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">CERN<\/subfield>/;P;D;" $f
+
         # 773__p Title
         if [ "$lang" == "e" ]; then
             sed -i "s/<subfield code=\"p\">.*<\/subfield>/<subfield code=\"p\">CERN Courier<\/subfield>/" $f
         else
             sed -i "s/<subfield code=\"p\">.*<\/subfield>/<subfield code=\"p\">Courrier CERN<\/subfield>/" $f
         fi
+
+        # 773__n Issue number
+        issue=$(echo $f | grep -Po "(?<=issue)[0-9]*(-[0-9]*)?(?=\/)")
+        sed -i "s/<subfield code=\"n\">.*<\/subfield>/<subfield code=\"n\">$issue<\/subfield>/" $f
+
+        # 773__v Volume number
+        volume=$(echo $f | grep -Po "(?<=vol)[0-9]*(?=-issue[0-9]*(-[0-9]*)?/)")
+        sed -i "s/<subfield code=\"v\">.*<\/subfield>/<subfield code=\"v\">$volume<\/subfield>/" $f
+
+        # 773__y Year
+        year=$(echo $f | grep -Po "(?<=/)[0-9]*(?=/)")
+        sed -i "s/<subfield code=\"y\">.*<\/subfield>/<subfield code=\"y\">$year<\/subfield>/" $f
+
         # 980__a Primary collection indicator
             sed -i "N;s/<datafield tag=\"980\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">.*<\/subfield>/<datafield tag=\"980\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">COURIERARCHIVE<\/subfield>/;P;D;" $f
+        # FFT__t Replace Figure with Figures
+        sed -i "s/<subfield code=\"t\">Figure<\/subfield>/<subfield code=\"t\">Figures<\/subfield>/" $f
+    # We remove empty fields AFTER all replacements. Otherwise we might remove important fields that are empty (like volume) and we won't be able to fill them with correct values
+    # Remove lines with empty subfields
+        sed -i "/<subfield code=\".\"><\/subfield>/d" $f
+    # Also a different pattern for empty lines
+        sed -i 'N;/<subfield code=\".\">\n    <\/subfield>/d;P;D;' $f
+    # And another one
+        sed -i "/    <subfield code=\".\" \/>/d" $f
 
-        # Issue number
-        issue=$(echo $f | grep -Po "(?<=issue)[0-9]*(?=\/)")
-        sed -i "s/<subfield code=\"n\">.*<\/subfield>/<subfield code=\"n\">$issue<\/subfield>/" $f
-        # Volume number
-        volume=$(echo $f | grep -Po "(?<=vol)[0-9]*(?=-issue[0-9]*/)")
-        sed -i "s/<subfield code=\"v\">.*<\/subfield>/<subfield code=\"v\">$volume<\/subfield>/" $f
+    # Remove empty fields that we might have just created
+    # I have no idea what kind of magic is happening here with this ;P;D but it took me 2 hours to make this pattern and it's working
+        sed -i "N;/<datafield tag=\".\{3\}\" ind2=\" \" ind1=\" \">\n<\/datafield>/d;P;D;" $f
+    # Again, different pattern for empty fields
+        sed -i "N;/<datafield tag=\".\{3\}\" ind2=\" \" ind1=\" \">\n <\/datafield>/d;P;D;" $f
+    # And one more different pattern for empty fields
+        sed -i "N;/<datafield tag=\".\{3\}\" ind2=\" \" ind1=\" \">\n  <\/datafield>/d;P;D;" $f
+
     fi
 done
 echo "Done!"
