@@ -7,8 +7,9 @@ import re
 from optparse import OptionParser
 from lxml import etree
 
-CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN = 'CERN_BULLETIN'
-CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'FIXED_COURRIER_CERN'
+CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN = 'CERN_BULLETIN_NEW'
+# CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN = 'CBTEST'
+CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'COURRIER_CERN'
 CFG_CCCBD_PUBLICATIONS = (
     CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN,
     CFG_CCCBD_PUBLICATIONS_CERN_COURRIER,
@@ -86,13 +87,13 @@ CFG_CCCBD_MARC_FIELDS_ALLOWED = {
         'a',
         't',
         'd',
-    ),
+    )
 # NOTE: Accept FTT for now to avoid the huge amount of errors
-    'FTT__' : (
-        'a',
-        't',
-        'd',
-    ),
+    # 'FTT__' : (
+    #     'a',
+    #     't',
+    #     'd',
+    # ),
 }
 CFG_CCCBD_MARC_FIELDS_MINIMUM = {
 }
@@ -206,9 +207,9 @@ def _check_marc_content(datafield, subfield, value,
 
     if datafield == "041__":
         if subfield == "a":
-            result = ( is_courier  and ( ( current_language.lower() == "e" and value == "en" ) or \
-                                         ( current_language.lower() == "f" and value == "fr" ) ) ) or \
-                     ( is_bulletin and ( value == "en" or value == "fr" ))
+            result = ( is_courier  and ( ( current_language.lower() == "e" and value == "eng" ) or \
+                                         ( current_language.lower() == "f" and value == "fre" ) ) ) or \
+                     ( is_bulletin and ( value == "eng" or value == "fre" ))
 
     elif datafield == "100__":
         if subfield == "a":
@@ -280,7 +281,9 @@ def _check_marc_content(datafield, subfield, value,
                     result = False
         elif subfield == "n":
             # Issue numbers should not have leading "0"
-            result = value == current_issue.lstrip("0")
+            # For bulletins we need to remove both leading "0" from issues like "01-02"
+            result = ( ( is_bulletin and len(current_issue) == 5 and value == re.sub("0", "", current_issue) ) or \
+                       ( len(current_issue) < 5 and value == current_issue.lstrip("0") ) )
         elif subfield == "p":
             result = ( is_courier  and ( ( current_language.lower() == "e" and value == "CERN Courier"  ) or \
                                          ( current_language.lower() == "f" and value == "Courrier CERN" ) ) ) or \
@@ -313,15 +316,15 @@ def _check_marc_content(datafield, subfield, value,
                 result = len(value) > 0
 
     # NOTE: Accept FTT for now to avoid the huge amount of errors
-    elif datafield == "FTT__":
-        if subfield == "a":
-            result = os.path.isfile(os.path.sep.join((directory, value)))
-        elif subfield == "t":
-            result = value == "Figures"
-        elif subfield == "d":
-            if CFG_NO_EMPTY_FIELDS:
-                # This field can't be empty
-                result = len(value) > 0
+    # elif datafield == "FTT__":
+    #     if subfield == "a":
+    #         result = os.path.isfile(os.path.sep.join((directory, value)))
+    #     elif subfield == "t":
+    #         result = value == "Figures"
+    #     elif subfield == "d":
+    #         if CFG_NO_EMPTY_FIELDS:
+    #             # This field can't be empty
+    #             result = len(value) > 0
 
     else:
         (result, error) = (True, "")

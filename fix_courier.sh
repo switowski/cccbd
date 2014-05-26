@@ -47,9 +47,9 @@ do
     # Fix predefined fields:
         # 041__a Language
         if [ "$lang" == "e" ]; then
-            sed -i "N;s/<datafield tag=\"041\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">.*<\/subfield>/<datafield tag=\"041\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">en<\/subfield>/;P;D;" $f
+            sed -i "N;s/<datafield tag=\"041\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">.*<\/subfield>/<datafield tag=\"041\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">eng<\/subfield>/;P;D;" $f
         else
-            sed -i "N;s/<datafield tag=\"041\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">.*<\/subfield>/<datafield tag=\"041\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">fr<\/subfield>/;P;D;" $f
+            sed -i "N;s/<datafield tag=\"041\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">.*<\/subfield>/<datafield tag=\"041\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">fre<\/subfield>/;P;D;" $f
         fi
 
         # 269__a and 269__b Publication place and publisher name
@@ -82,9 +82,13 @@ do
         sed -i "s/<subfield code=\"y\">.*<\/subfield>/<subfield code=\"y\">$year<\/subfield>/" $f
 
         # 980__a Primary collection indicator
-            sed -i "N;s/<datafield tag=\"980\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">.*<\/subfield>/<datafield tag=\"980\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">COURIERARCHIVE<\/subfield>/;P;D;" $f
+            sed -i "N;s/<datafield tag=\"980\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">.*<\/subfield>/<datafield tag=\"980\" ind2=\" \" ind1=\" \">\n<subfield code=\"a\">BULLETINARCHIVE<\/subfield>/;P;D;" $f
+
         # FFT__t Replace Figure with Figures
         sed -i "s/<subfield code=\"t\">Figure<\/subfield>/<subfield code=\"t\">Figures<\/subfield>/" $f
+
+        # Replace FTT tags with FFT
+        sed -i "s/tag=\"FTT\"/tag=\"FFT\"/" $f
     # We remove empty fields AFTER all replacements. Otherwise we might remove important fields that are empty (like volume) and we won't be able to fill them with correct values
     # Remove lines with empty subfields
         sed -i "/<subfield code=\".\"><\/subfield>/d" $f
