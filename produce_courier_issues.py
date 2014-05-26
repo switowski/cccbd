@@ -6,19 +6,60 @@ import sys
 import re
 from optparse import OptionParser
 from lxml import etree
+import Levenshtein
+
+CFG_CCCBD_MARCXML_ISSUE_CONTENT_CERN_COURIER = "vol%s-issue%s.xml"
+
+CFG_CCCBD_MARCXML_ISSUE_CONTENT_CERN_COURIER = """
+<record>
+  <datafield tag="???" ind2=" " ind1=" ">
+    <subfield code="?">...........</subfield>
+  </datafield>
+</record>
+"""
+
+CFG_CCCBD_MONTHS_ENG = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+]
+
+CFG_CCCBD_MONTHS_FRE = [
+    'Janvier',
+    'Février',
+    'Mars',
+    'Avril',
+    'Mai',
+    'Juin',
+    'Juillet',
+    'Août',
+    'Septembre',
+    'Octobre',
+    'Novembre',
+    'Décembre',
+]
 
 CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN = 'CERN_BULLETIN'
-CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'FIXED_COURRIER_CERN'
+CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'COURRIER_CERN'
 CFG_CCCBD_PUBLICATIONS = (
     CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN,
     CFG_CCCBD_PUBLICATIONS_CERN_COURRIER,
 )
 
-CFG_CCCBD_LANGUAGES_ENGLISH = 'E'
-CFG_CCCBD_LANGUAGES_FRENCH  = 'F'
+CFG_CCCBD_LANGUAGES_ENG = 'E'
+CFG_CCCBD_LANGUAGES_FRE  = 'F'
 CFG_CCCBD_LANGUAGES = (
-    CFG_CCCBD_LANGUAGES_ENGLISH,
-    CFG_CCCBD_LANGUAGES_FRENCH,
+    CFG_CCCBD_LANGUAGES_ENG,
+    CFG_CCCBD_LANGUAGES_FRE,
 )
 
 
@@ -497,244 +538,65 @@ def run():
                         if dirname in CFG_CCCBD_FORMATS:
                             continue
                         _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
-                        # TODO: Check if we can correct the problem
-                        # If we fix the problem here, we might introduce another problem in the FFT tags of the XML files!
-                        # Either make sure to fix the problem in both places or loosen the checks.
-                        #if dirname.upper() in CFG_CCCBD_FORMATS:
-                        #    tmp_name_before = os.path.sep.join((dirpath, dirname))
-                        #    tmp_name_after  = os.path.sep.join((dirpath, dirname.upper()))
-                        #    os.rename(tmp_name_before, tmp_name_after)
-                        #    _report("Renamed %s to %s " % (tmp_name_before, tmp_name_after), info = True)
 
+                    current_month = None
                     current_volume, current_issue = pattern_volume_issue_dir.match(current_dir).groups()
 
                 elif current_dir == CFG_CCCBD_FORMATS_TIFF:
-                    _execute_on_each_directory(current_dir, dirpath)
-                    if dirnames:
-                        for dirname in dirnames:
-                            _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
-                    if current_language is None:
-                        _report("There was a problem detecting the current language", exit = True)
-                    tiff_covers_p, tiff_toc_p = (False, ) * 2
-                    for filename in filenames:
-                        _execute_on_each_file(filename, current_dir, dirpath)
-                        tiff_file_page_match = pattern_tiff_file_page.match(filename)
-                        if tiff_file_page_match is not None:
-                            try:
-                                assert (current_volume, current_issue, current_language.lower()) == tiff_file_page_match.groups()
-                            except AssertionError:
-                                _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                        else:
-                            tiff_file_covers_match = pattern_tiff_file_covers.match(filename)
-                            if tiff_file_covers_match is not None:
-                                try:
-                                    assert (current_volume, current_issue) == tiff_file_covers_match.groups()
-                                    tiff_covers_p = True
-                                except AssertionError:
-                                    _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                            else:
-                                tiff_file_toc_match = pattern_tiff_file_toc.match(filename)
-                                if tiff_file_toc_match is not None:
-                                    try:
-                                        assert (current_volume, current_issue) == tiff_file_toc_match.groups()
-                                        tiff_toc_p = True
-                                    except AssertionError:
-                                        _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                                else:
-                                    _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                    if not tiff_covers_p:
-                        _report("The TIFF covers file is missing in %s" % (dirpath,), warn = True)
-                    if not tiff_toc_p:
-                        _report("The TIFF toc file is missing in %s" % (dirpath,), warn = True)
+                    pass
 
                 elif current_dir == CFG_CCCBD_FORMATS_PDF:
-                    _execute_on_each_directory(current_dir, dirpath)
-                    if dirnames:
-                        for dirname in dirnames:
-                            _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
-                    if current_language is None:
-                        _report("There was a problem detecting the current language", exit = True)
-                    pdf_issue_p, pdf_covers_p, pdf_toc_p = (False, ) * 3
-                    for filename in filenames:
-                        _execute_on_each_file(filename, current_dir, dirpath)
-                        pdf_file_page_match = pattern_pdf_file_page.match(filename)
-                        if pdf_file_page_match is not None:
-                            try:
-                                assert (current_volume, current_issue, current_language.lower()) == pdf_file_page_match.groups()
-                            except AssertionError:
-                                _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                        else:
-                            pdf_file_issue_match = pattern_pdf_file_issue.match(filename)
-                            if pdf_file_issue_match is not None:
-                                try:
-                                    assert (current_volume, current_issue) == pdf_file_issue_match.groups()
-                                    pdf_issue_p = True
-                                except AssertionError:
-                                    _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                            else:
-                                pdf_file_covers_match = pattern_pdf_file_covers.match(filename)
-                                if pdf_file_covers_match is not None:
-                                    try:
-                                        assert (current_volume, current_issue) == pdf_file_covers_match.groups()
-                                        pdf_covers_p = True
-                                    except AssertionError:
-                                        _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                                else:
-                                    pdf_file_toc_match = pattern_pdf_file_toc.match(filename)
-                                    if pdf_file_toc_match is not None:
-                                        try:
-                                            assert (current_volume, current_issue) == pdf_file_toc_match.groups()
-                                            pdf_toc_p = True
-                                        except AssertionError:
-                                            _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                                    else:
-                                        _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                    if not pdf_issue_p:
-                        _report("The PDF issue file is missing in %s" % (dirpath,), warn = True)
-                    if not pdf_covers_p:
-                        _report("The PDF covers file is missing in %s" % (dirpath,), warn = True)
-                    if not pdf_toc_p:
-                        _report("The PDF toc file is missing in %s" % (dirpath,), warn = True)
+                    pass
 
                 elif current_dir == CFG_CCCBD_FORMATS_OCR:
-                    _execute_on_each_directory(current_dir, dirpath)
-                    if dirnames:
-                        for dirname in dirnames:
-                            _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
-                    if current_language is None:
-                        _report("There was a problem detecting the current language", exit = True)
-                    for filename in filenames:
-                        _execute_on_each_file(filename, current_dir, dirpath)
-                        ocr_file_page_match = pattern_ocr_file_page.match(filename)
-                        if ocr_file_page_match is not None:
-                            try:
-                                assert (current_volume, current_issue, current_language.lower()) == ocr_file_page_match.groups()
-                            except AssertionError:
-                                _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                        else:
-                            _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
+                    pass
 
                 elif current_dir == CFG_CCCBD_FORMATS_XML:
-                    _execute_on_each_directory(current_dir, dirpath)
-                    if dirnames:
-                        for dirname in dirnames:
-                            _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
-                    if current_language is None:
-                        _report("There was a problem detecting the current language", exit = True)
+                    current_month_candidates = []
                     for filename in filenames:
-                        _execute_on_each_file(filename, current_dir, dirpath)
                         xml_file_page_match = pattern_xml_file_page.match(filename)
                         if xml_file_page_match is not None:
+                            tmp_file = os.path.sep.join((dirpath, filename))
                             try:
-                                assert (current_volume, current_issue, current_language.lower()) == xml_file_page_match.groups()
-
-                                tmp_file = os.path.sep.join((dirpath, filename))
-                                try:
-                                    xml = etree.parse(tmp_file)
-                                    # keep all the marc tags (datafields & subfields) found in this file in this dictionary for later checks
-                                    tmp_file_marc_tags = {}
-
-                                    # Check if the file encoding is correct
-                                    test_assertion(xml.docinfo.encoding == "UTF-8" , "[XML] Wrong encoding (%s) in %s" % (xml.docinfo.encoding, os.path.sep.join((dirpath, filename))))
-
-                                    # Check if the root element:
-                                    xml_root = xml.getroot()
-                                    # is correct
-                                    test_assertion(xml_root.tag == "record" , "[XML] Wrong root element (%s) in %s" % (xml_root.tag, os.path.sep.join((dirpath, filename))))
-                                    # has no overflowing text anywhere
-                                    test_assertion(xml_root.text.strip() == "" , "[XML] Extra text (%s) in the root element in %s" % (xml_root.text.strip(), os.path.sep.join((dirpath, filename))))
-                                    # has no attributes
-                                    test_assertion(xml_root.attrib == {} , "[XML] Extra attributes (%s) in the root element in %s" % (str(xml_root.attrib), os.path.sep.join((dirpath, filename))))
-
-                                    # Go through all the root's children and check:
-                                    xml_datafields = xml_root.iterchildren()
-                                    for xml_datafield in xml_datafields:
-                                        # if they are all datafields
-                                        test_assertion(xml_datafield.tag == "datafield" , "[XML] Wrong datafield element (%s) in %s" % (xml_datafield.tag, os.path.sep.join((dirpath, filename))))
-                                        # if they have any overflowing text anywhere
-                                        test_assertion(xml_datafield.text.strip() == "" , "[XML] Extra text (%s) in a datafield element in %s" % (xml_datafield.text.strip(), os.path.sep.join((dirpath, filename))))
-                                        test_assertion(xml_datafield.tail.strip() == "" , "[XML] Extra text (%s) in a datafield element in %s" % (xml_datafield.tail.strip(), os.path.sep.join((dirpath, filename))))
-                                        # if they have the expected attributes
-                                        assert ( sorted(xml_datafield.keys()) == ['ind1', 'ind2', 'tag'] ), "[XML] Extra attributes (%s) in a datafield element in %s" % (str(xml_datafield.attrib), os.path.sep.join((dirpath, filename)))
-                                        # if they are valid datafields
-                                        tmp_file_datafield = ''.join([xml_datafield.attrib[key] for key in ('tag', 'ind1', 'ind2')]).replace(' ', '_')
-                                        test_assertion(tmp_file_datafield in CFG_CCCBD_MARC_FIELDS_ALLOWED , "[XML] Unexpected datafield element tag (%s) in %s" % (tmp_file_datafield, os.path.sep.join((dirpath, filename))))
-
-                                        # this is now a valid datafield, so add it to the dictionary of marc tags found in this file
-                                        tmp_file_marc_tags[tmp_file_datafield] = []
-
-                                        # Go through all of each datafield's children and check:
-                                        xml_subfields = xml_datafield.iterchildren()
-                                        tmp_file_datafield_allowed_subfields = CFG_CCCBD_MARC_FIELDS_ALLOWED.get(tmp_file_datafield, "")
-                                        for xml_subfield in xml_subfields:
-                                            # if they are all subfields
-                                            test_assertion(xml_subfield.tag == "subfield" , "[XML] Wrong subfield element (%s) in %s" % (xml_subfield.tag, os.path.sep.join((dirpath, filename))))
-                                            # if they have any overflowing text anywhere
-                                            test_assertion(xml_subfield.tail.strip() == "" , "[XML] Extra text (%s) in a subfield element in %s" % (xml_subfield.tail.strip(), os.path.sep.join((dirpath, filename))))
-                                            # if they have the expected attributes
-                                            test_assertion(xml_subfield.keys() == ['code'] , "[XML] Extra attributes (%s) in a subfield element in %s" % (str(xml_subfield.attrib), os.path.sep.join((dirpath, filename))))
-                                            # if they are valid subfields
-                                            tmp_file_subfield = xml_subfield.attrib['code']
-                                            test_assertion(tmp_file_subfield in tmp_file_datafield_allowed_subfields , "[XML] Unexpected subfield element code (%s) in datafield %s in %s" % (str(tmp_file_subfield), tmp_file_datafield, os.path.sep.join((dirpath, filename))))
-                                            # if their content is valid
-                                            (result, error) = _check_marc_content(tmp_file_datafield, tmp_file_subfield, xml_subfield.text,
-                                                                                  current_language, current_volume, current_issue,
-                                                                                  current_year, directory, is_courier, is_bulletin)
-                                            test_assertion(result is True , "[XML] %s in %s" % (error, os.path.sep.join((dirpath, filename))))
-
-                                            # this is now a valid subfield, so add it to the dictionary of marc tags found in this file
-                                            tmp_file_marc_tags[tmp_file_datafield].append(tmp_file_subfield)
-
-                                        # if the datafield has children (subfields)
-                                        test_assertion(len(tmp_file_marc_tags[tmp_file_datafield]) > 0 , "[XML] No subfields defined for datafield element tag (%s) in %s" % (tmp_file_datafield, os.path.sep.join((dirpath, filename))))
-
-                                    # Check that all the marc tags (datafields & subfields) found in this file respect the CFG_CCCBD_MARC_FIELDS_MINIMUM
-                                    for datafield in CFG_CCCBD_MARC_FIELDS_MINIMUM:
-                                        subfields = tmp_file_marc_tags.pop(datafield, None)
-                                        test_assertion(subfields is not None , "[XML] Mandatory datafield (%s) missing in %s" % (datafield, os.path.sep.join((dirpath, filename))))
-                                        for subfield in CFG_CCCBD_MARC_FIELDS_MINIMUM[datafield]:
-                                            test_assertion(subfield in subfields , "[XML] Mandatory subfield (%s) for datafield (%s) missing in %s" % (subfield, datafield, os.path.sep.join((dirpath, filename))))
-
-                                except etree.XMLSyntaxError:
-                                    _report("[XML] Invalid syntax in %s" % (os.path.sep.join((dirpath, filename)),), warn = True)
-
-                            except AssertionError:
-                                _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
+                                xml = etree.parse(tmp_file)
+                                current_month_candidates_elements = xml.xpath("datafield[@tag='269']/subfield[@code='c']")
+                                if len(current_month_candidates_elements) != 1:
+                                    _report("Not exactly one 269__c defined for %s" % (os.path.sep.join((dirpath, filename)),), exit = True)
+                                # Dates in 269__c should look something like 'October 1959'
+                                current_month_candidates_months_and_years = [e.text for e in current_month_candidates_elements]
+                                # Let's extract the months
+                                current_month_candidates_months = ['/'.join(d.split()[:-1]) for d in current_month_candidates_months_and_years]
+                                current_month_candidates.extend(current_month_candidates_months)
+                            except etree.XMLSyntaxError:
+                                pass
                         else:
-                            _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
+                            pass
+                    if current_month_candidates:
+                        print current_month_candidates
+
+                        current_month_candidates_unique = list(set(current_month_candidates))
+                        current_month_candidates_unique_lowest_score = sorted(zip([current_month_candidates.count(u) for u in current_month_candidates_unique], current_month_candidates_unique), key = lambda x:x[0])[0][1]
+                        if len(current_month_candidates_unique) > 1:
+                            print "===> CHECK ME: More than one unique value in the current month candidates (%s)" % (current_month_candidates_unique_lowest_score.encode("UTF-8"),)
+
+                        current_month_candidates_score = map(sum, zip(*[[Levenshtein.distance(proper_month.decode("UTF-8").lower(), unicode(current_month_candidate).lower()) for proper_month in ((current_language == CFG_CCCBD_LANGUAGES_ENG and CFG_CCCBD_MONTHS_ENG) or (current_language == CFG_CCCBD_LANGUAGES_FRE and CFG_CCCBD_MONTHS_FRE) or [])] for current_month_candidate in current_month_candidates]))
+                        if current_month_candidates_score:
+                            current_month_candidates_score_min = min(current_month_candidates_score)
+                            current_month_candidates_score_min_avg = float(current_month_candidates_score_min) / float(len(current_month_candidates))
+                            if current_month_candidates_score_min_avg > 2:
+                                print "===> CHECK ME: Too high average minimum score for the best candidate (%s)" % (str(current_month_candidates_score_min_avg),)
+                            current_month = ((current_language == CFG_CCCBD_LANGUAGES_ENG and CFG_CCCBD_MONTHS_ENG) or (current_language == CFG_CCCBD_LANGUAGES_FRE and CFG_CCCBD_MONTHS_FRE) or [])[current_month_candidates_score.index(current_month_candidates_score_min)]
+
+                    print "l:", current_language, "/v:", current_volume, "/i:", current_issue, "/y:", current_year, "/m:", current_month
+                    print
 
                 elif current_dir == CFG_CCCBD_FORMATS_PNG:
-                    _execute_on_each_directory(current_dir, dirpath)
-                    if dirnames:
-                        for dirname in dirnames:
-                            _report("There is an unexpected directory in %s : %s" % (dirpath, dirname), warn = True)
-                    # TODO: check that for each PNG file there is an .xml and a .txt file
-                    for filename in filenames:
-                        _execute_on_each_file(filename, current_dir, dirpath)
-                        png_file_fig_match = pattern_png_file_fig.match(filename)
-                        if png_file_fig_match is not None:
-                            try:
-                                assert (current_volume, current_issue) == png_file_fig_match.groups()
-                            except AssertionError:
-                                _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                        else:
-                            png_file_figcaption_match = pattern_png_file_figcaption.match(filename)
-                            if png_file_figcaption_match is not None:
-                                try:
-                                    assert (current_volume, current_issue) == png_file_figcaption_match.groups()
-                                except AssertionError:
-                                    _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                            else:
-                                png_file_captions_match = pattern_png_file_captions.match(filename)
-                                if png_file_captions_match is not None:
-                                    try:
-                                        assert (current_volume, current_issue) == png_file_captions_match.groups()
-                                    except AssertionError:
-                                        _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
-                                else:
-                                    _report("There is an unexpected file in %s : %s" % (dirpath, filename), warn = True)
+                    pass
 
         if is_bulletin:
+            # Don't do anything fo the CERN Bulletin yet.
+            raise StopIteration
+
             first_iteration_p = True
 
             current_language, current_volume, current_issue, current_year = (None, ) * 4
