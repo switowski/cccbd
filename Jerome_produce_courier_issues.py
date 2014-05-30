@@ -21,10 +21,12 @@ def main(top_path):
             new_xml_filepath = os.path.join(dirpath, new_xml_filename)
             if not os.path.exists(new_xml_filename):
                 pdf_path = os.sep.join(splitted_dirpath[:-1]) + os.path.sep + 'PDF' + os.path.sep + splitted_dirpath[-2] + '.pdf'
+                # We take one of the articles inside directory (doesn't matter which one) and create a record based on the XML of this article
                 sample_article_path_for_issue = os.path.join(dirpath, [filename for filename in filenames if filename.endswith('.xml')][0])
                 sample_article_xml_for_issue = open(sample_article_path_for_issue).read()
                 sample_article_record_for_issue = create_record(sample_article_xml_for_issue)[0]
                 collection = record_get_field_value(sample_article_record_for_issue, tag='980', ind1=" ", ind2=" ", code="a")
+                # We now have a record for an article. Now we modify some fields and we get the XML for whole issue
 
                 if 'COURIER' in collection:
                     reused_fields = record_xml_output(sample_article_record_for_issue, ['041', '260', '269', '690', '773'])
@@ -42,9 +44,14 @@ def main(top_path):
                     ' (%s)' % ln_long
 
                 else:
-                    reused_fields = '''<datafield tag="041" ind1=" " ind2=" "><subfield code="a">en</subfield></datafield>
-    <datafield tag="041" ind1=" " ind2=" "><subfield code="a">fr</subfield></datafield>
-'''
+                    reused_fields = '''
+                    <datafield tag="041" ind1=" " ind2=" ">
+                        <subfield code="a">eng</subfield>
+                    </datafield>
+                    <datafield tag="041" ind1=" " ind2=" ">
+                        <subfield code="a">fre</subfield>
+                    </datafield>'''
+
                     reused_fields += record_xml_output(sample_article_record_for_issue, ['260', '269', '690', '773'])
                     journal_collection = 'BULLETINISSUEARCHIVE'
                     new_title = record_get_field_value(sample_article_record_for_issue, tag='773', ind1=" ", ind2=" ", code="t") + \
@@ -52,13 +59,15 @@ def main(top_path):
 
                 new_xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
 <record>
-    <datafield tag="245" ind2=" " ind1=" "><subfield code="a">%(title)s</subfield></datafield>
+    <datafield tag="245" ind2=" " ind1=" ">
+      <subfield code="a">%(title)s</subfield>
+    </datafield>
     %(other)s
-    <datafield tag="980" ind2=" " ind1=" "><subfield code="a">%(collection)s</subfield></datafield>
     <datafield tag="FFT" ind1=" " ind2=" ">
     <subfield code="a">%(mainfile)s</subfield>
     <subfield code="t">Main</subfield>
     </datafield>
+    <datafield tag="980" ind2=" " ind1=" "><subfield code="a">%(collection)s</subfield></datafield>
 </record>
     ''' % {'other': reused_fields,
            'title': new_title,

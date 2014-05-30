@@ -7,9 +7,9 @@ import re
 from optparse import OptionParser
 from lxml import etree
 
-CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN = 'CERN_BULLETIN_NEW'
+CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN = 'CERN_BULLETIN'
 # CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN = 'CBTEST'
-CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'COURRIER_CERN'
+CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'NEW_COURRIER_CERN'
 CFG_CCCBD_PUBLICATIONS = (
     CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN,
     CFG_CCCBD_PUBLICATIONS_CERN_COURRIER,
@@ -87,13 +87,13 @@ CFG_CCCBD_MARC_FIELDS_ALLOWED = {
         'a',
         't',
         'd',
-    )
+    ),
 # NOTE: Accept FTT for now to avoid the huge amount of errors
-    # 'FTT__' : (
-    #     'a',
-    #     't',
-    #     'd',
-    # ),
+    'FTT__' : (
+        'a',
+        't',
+        'd',
+    ),
 }
 CFG_CCCBD_MARC_FIELDS_MINIMUM = {
 }
@@ -316,15 +316,15 @@ def _check_marc_content(datafield, subfield, value,
                 result = len(value) > 0
 
     # NOTE: Accept FTT for now to avoid the huge amount of errors
-    # elif datafield == "FTT__":
-    #     if subfield == "a":
-    #         result = os.path.isfile(os.path.sep.join((directory, value)))
-    #     elif subfield == "t":
-    #         result = value == "Figures"
-    #     elif subfield == "d":
-    #         if CFG_NO_EMPTY_FIELDS:
-    #             # This field can't be empty
-    #             result = len(value) > 0
+    elif datafield == "FTT__":
+        if subfield == "a":
+            result = os.path.isfile(os.path.sep.join((directory, value)))
+        elif subfield == "t":
+            result = value == "Figures"
+        elif subfield == "d":
+            if CFG_NO_EMPTY_FIELDS:
+                # This field can't be empty
+                result = len(value) > 0
 
     else:
         (result, error) = (True, "")

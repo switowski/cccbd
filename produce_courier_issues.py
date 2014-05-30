@@ -31,6 +31,20 @@ CFG_CCCBD_MONTHS_ENG = [
     'October',
     'November',
     'December',
+    'January-February',
+    'February-March',
+    'March-April',
+    'April-May',
+    'May-June',
+    'June-July',
+    'July-August',
+    'August-September',
+    'September-October',
+    'October-November',
+    'November-December',
+    'December-January',
+    'Winter',
+    'Summer',
 ]
 
 CFG_CCCBD_MONTHS_FRE = [
@@ -46,10 +60,25 @@ CFG_CCCBD_MONTHS_FRE = [
     'Octobre',
     'Novembre',
     'Décembre',
+    'Janvier-Février',
+    'Février-Mars',
+    'Mars-Avril',
+    'Avril-Mai',
+    'Mai-Juin',
+    'Juin-Juillet',
+    'Juillet-Août',
+    'Août-Septembre',
+    'Septembre-Octobre',
+    'Octobre-Novembre',
+    'Novembre-Décembre',
+    'Décembre-Janvier',
+    'Hiver',
+    'Été',
 ]
 
 CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN = 'CERN_BULLETIN'
-CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'COURRIER_CERN'
+# CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'COURRIER_CERN'
+CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'BACKUP_COURRIER'
 CFG_CCCBD_PUBLICATIONS = (
     CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN,
     CFG_CCCBD_PUBLICATIONS_CERN_COURRIER,
@@ -564,8 +593,16 @@ def run():
                                     _report("Not exactly one 269__c defined for %s" % (os.path.sep.join((dirpath, filename)),), exit = True)
                                 # Dates in 269__c should look something like 'October 1959'
                                 current_month_candidates_months_and_years = [e.text for e in current_month_candidates_elements]
+                                current_month_candidates_months = []
                                 # Let's extract the months
-                                current_month_candidates_months = ['/'.join(d.split()[:-1]) for d in current_month_candidates_months_and_years]
+                                for month in current_month_candidates_months_and_years:
+                                    # Strip digits from month
+                                    month = "".join([b for b in month if not b.isdigit()]).strip()
+                                    if len(month.split()) > 1:
+                                        current_month_candidates_months.append('-'.join(month.split()[:-1]))
+                                    else:
+                                        current_month_candidates_months.append(month)
+                                # current_month_candidates_months = ['/'.join(d.split()[:-1]) for d in current_month_candidates_months_and_years]
                                 current_month_candidates.extend(current_month_candidates_months)
                             except etree.XMLSyntaxError:
                                 pass
@@ -586,7 +623,29 @@ def run():
                             if current_month_candidates_score_min_avg > 2:
                                 print "===> CHECK ME: Too high average minimum score for the best candidate (%s)" % (str(current_month_candidates_score_min_avg),)
                             current_month = ((current_language == CFG_CCCBD_LANGUAGES_ENG and CFG_CCCBD_MONTHS_ENG) or (current_language == CFG_CCCBD_LANGUAGES_FRE and CFG_CCCBD_MONTHS_FRE) or [])[current_month_candidates_score.index(current_month_candidates_score_min)]
-
+                    current_date = current_month + " " + current_year
+                    print "Now I will replace old date in file %s with %s" % (filename, current_date)
+                    # Replace month with correct value in every file
+                    for filename in filenames:
+                        xml_file_page_match = pattern_xml_file_page.match(filename)
+                        if xml_file_page_match is not None:
+                            tmp_file = os.path.sep.join((dirpath, filename))
+                            # One special case without month and year (special issue: /dfs/cern.ch/COURRIER_CERN/F/1960/vol1-issue6-7/PDF)
+                            if current_language == "F" and current_volume == "1" and current_issue == "6-7":
+                                print "Special case. Not changing anything."
+                                continue
+                            try:
+                                xml = etree.parse(tmp_file)
+                                current_month_candidates_elements = xml.xpath("datafield[@tag='269']/subfield[@code='c']")
+                                if len(current_month_candidates_elements) != 1:
+                                    _report("Not exactly one 269__c defined for %s" % (os.path.sep.join((dirpath, filename)),), exit = True)
+                                current_month_to_fix = [e.text for e in current_month_candidates_elements][0]
+                                with open(tmp_file) as f:
+                                    newfile = f.read().replace(current_month_to_fix, current_date)
+                                open(tmp_file, "w").write(newfile)
+                                print "Replaced %s with %s in %s" % (current_month_to_fix, current_date, tmp_file)
+                            except etree.XMLSyntaxError:
+                                pass
                     print "l:", current_language, "/v:", current_volume, "/i:", current_issue, "/y:", current_year, "/m:", current_month
                     print
 
