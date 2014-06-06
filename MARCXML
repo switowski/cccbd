@@ -1,32 +1,3 @@
-<record>
-<datafield tag="041" ind1=" " ind2=" ">
-    <subfield code="a">eng</subfield>
-</datafield>
-    <datafield tag="245" ind2=" " ind1=" "><subfield code="a">CERN Courier n° 4 vol. 18 April (English)</subfield></datafield>
-  <datafield tag="260" ind1=" " ind2=" ">
-    <subfield code="c">1978</subfield>
-  </datafield>
-  <datafield tag="269" ind1=" " ind2=" ">
-    <subfield code="a">Geneva</subfield>
-    <subfield code="b">CERN</subfield>
-    <subfield code="c">April</subfield>
-  </datafield>
-  <datafield tag="690" ind1=" " ind2=" ">
-    <subfield code="a">CERN</subfield>
-  </datafield>
-  <datafield tag="773" ind1=" " ind2=" ">
-    <subfield code="n">4</subfield>
-    <subfield code="p">CERN Courier</subfield>
-    <subfield code="v">18</subfield>
-    <subfield code="y">1978</subfield>
-  </datafield>
-    <datafield tag="FFT" ind1=" " ind2=" ">
-    <subfield code="a">./E/1978/vol18-issue4/PDF/vol18-issue4.pdf</subfield>
-    <subfield code="t">Main</subfield>
-    </datafield>
-    <datafield tag="980" ind2=" " ind1=" "><subfield code="a">COURIERISSUEARCHIVE</subfield></datafield>
-</record>
-
 Courier:
 001__ recid
 005__ timestamp
@@ -38,8 +9,6 @@ Courier:
 260__ $a Geneva / Bristol
       $b CERN / IOP
       $c 2014
-595__ $a Press
-      $s Courier / Courrier
 773__ $n 3
       $p CERN Courier / Courrier CERN
       $v 54
@@ -62,13 +31,9 @@ Bulletin:
 260__ $a Geneva
       $b CERN
       $c 2014
-595__ $a Press
-      $s Bulletin
 773__ $n 3
-      $p CERN Courier / Courrier CERN
-      $v 54
+      $p CERN Bulletin
       $y 2014
-      $d April 2014
 8560_ $f bulletin-editors@cern.ch
 8564_ Generated automatically
 980__ $a CERN_BULLETIN_ISSUE

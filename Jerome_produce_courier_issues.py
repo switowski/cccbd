@@ -29,49 +29,97 @@ def main(top_path):
                 # We now have a record for an article. Now we modify some fields and we get the XML for whole issue
 
                 if 'COURIER' in collection:
-                    reused_fields = record_xml_output(sample_article_record_for_issue, ['041', '260', '269', '690', '773'])
-                    journal_collection = 'COURIERISSUEARCHIVE'
-                    ln = record_get_field_value(sample_article_record_for_issue, tag='041', ind1=" ", ind2=" ", code="a")
-                    ln_long = ln
-                    if ln.lower().startswith('fr'):
-                        ln_long = "Français"
-                    elif ln.lower().startswith('en'):
-                        ln_long = "English"
-                    new_title = record_get_field_value(sample_article_record_for_issue, tag='773', ind1=" ", ind2=" ", code="p") + \
-                    ' n° ' + record_get_field_value(sample_article_record_for_issue, tag='773', ind1=" ", ind2=" ", code="n") + \
-                    ' vol. ' + record_get_field_value(sample_article_record_for_issue, tag='773', ind1=" ", ind2=" ", code="v") + \
-                    ' ' + record_get_field_value(sample_article_record_for_issue, tag='269', ind1=" ", ind2=" ", code="c") + \
-                    ' (%s)' % ln_long
+                    reused_fields = record_xml_output(sample_article_record_for_issue, ['041', '773'])
+                    journal_collection = 'CERN_COURIER_ISSUE'
+                    email = "cern.courier@cern.ch"
+                    language = record_get_field_value(sample_article_record_for_issue, tag='041', ind1=" ", ind2=" ", code="a")
+                    year = record_get_field_value(sample_article_record_for_issue, tag='260', ind1=" ", ind2=" ", code="c")
+                    volume = record_get_field_value(sample_article_record_for_issue, tag='773', ind1=" ", ind2=" ", code="v")
+                    number = record_get_field_value(sample_article_record_for_issue, tag='773', ind1=" ", ind2=" ", code="n")
+                    date = record_get_field_value(sample_article_record_for_issue, tag='269', ind1=" ", ind2=" ", code="c")
+                    # From October 1998, the publisher is IOP
+                    if year > '1998' or (year == '1998' and date[:-5] in ['October', 'November', 'December', 'Octobre', 'Novembre', 'Décembre']):
+                        publication_place = 'Bristol'
+                        publisher = 'IOP'
+                    else:
+                        publication_place = 'Geneva'
+                        publisher = 'CERN'
+
+                    if language == "eng":
+                        new_title = "CERN Courier Volume %(vol)s, Number %(num)s, %(date)s" % {
+                            'vol': volume,
+                            'num': number,
+                            'date': date
+                        }
+                    elif language == "fre":
+                        new_title = "Courrier CERN Volume %(vol)s, N° %(num)s, %(date)s" % {
+                            'vol': volume,
+                            'num': number,
+                            'date': date
+                        }
+                    publication = \
+'''<datafield tag="260" ind2=" " ind1=" ">
+    <subfield code="a">%(publication_place)s</subfield>
+    <subfield code="b">%(publisher)s</subfield>
+    <subfield code="c">%(year)s</subfield>
+    </datafield>'''     % {'publication_place': publication_place,
+                           'publisher': publisher,
+                           'year': year}
 
                 else:
-                    reused_fields = '''
-                    <datafield tag="041" ind1=" " ind2=" ">
-                        <subfield code="a">eng</subfield>
-                    </datafield>
-                    <datafield tag="041" ind1=" " ind2=" ">
-                        <subfield code="a">fre</subfield>
-                    </datafield>'''
+                    # Bulletin
+                    reused_fields = \
+'''<datafield tag="041" ind1=" " ind2=" ">
+    <subfield code="a">eng</subfield>
+  </datafield>
+  <datafield tag="041" ind1=" " ind2=" ">
+    <subfield code="a">fre</subfield>
+  </datafield>
+'''
 
-                    reused_fields += record_xml_output(sample_article_record_for_issue, ['260', '269', '690', '773'])
-                    journal_collection = 'BULLETINISSUEARCHIVE'
-                    new_title = record_get_field_value(sample_article_record_for_issue, tag='773', ind1=" ", ind2=" ", code="t") + \
-                        ' Issue No. ' + record_get_field_value(sample_article_record_for_issue, tag='773', ind1=" ", ind2=" ", code="n")
+                    reused_fields += record_xml_output(sample_article_record_for_issue, ['773'])
+                    journal_collection = 'CERN_BULLETIN_ISSUE'
+                    email = "bulletin-editors@cern.ch"
+                    year = record_get_field_value(sample_article_record_for_issue, tag='260', ind1=" ", ind2=" ", code="c")
+                    number = record_get_field_value(sample_article_record_for_issue, tag='773', ind1=" ", ind2=" ", code="n")
+                    new_title = "CERN Bulletin Issue No. %(num)s/%(year)s" % {
+                        'num': number,
+                        'year': year
+                    }
+                    publication = \
+'''<datafield tag="260" ind2=" " ind1=" ">
+    <subfield code="a">Geneva</subfield>
+    <subfield code="b">CERN</subfield>
+    <subfield code="c">%s</subfield>
+    </datafield>''' % year
 
+                # Create new XML file
                 new_xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
 <record>
-    <datafield tag="245" ind2=" " ind1=" ">
-      <subfield code="a">%(title)s</subfield>
-    </datafield>
-    %(other)s
-    <datafield tag="FFT" ind1=" " ind2=" ">
+  <datafield tag="110" ind2=" " ind1=" ">
+    <subfield code="a">CERN</subfield>
+  </datafield>
+  <datafield tag="245" ind2=" " ind1=" ">
+    <subfield code="a">%(title)s</subfield>
+  </datafield>
+  %(publication)s
+  %(other)s
+  <datafield tag="856" ind2=" " ind1="0">
+    <subfield code="f">%(email)s</subfield>
+  </datafield>
+  <datafield tag="FFT" ind1=" " ind2=" ">
     <subfield code="a">%(mainfile)s</subfield>
     <subfield code="t">Main</subfield>
-    </datafield>
-    <datafield tag="980" ind2=" " ind1=" "><subfield code="a">%(collection)s</subfield></datafield>
+  </datafield>
+  <datafield tag="980" ind2=" " ind1=" ">
+    <subfield code="a">%(collection)s</subfield>
+  </datafield>
 </record>
     ''' % {'other': reused_fields,
+           'publication': publication,
            'title': new_title,
            'collection': journal_collection,
+           'email': email,
            'mainfile': pdf_path}
                 fd = file(new_xml_filepath, 'w')
                 fd.write(new_xml_content)
@@ -80,9 +128,6 @@ def main(top_path):
 
     print 'Finished.'
 
-def remove_page_field(matchobj):
-    print 'found ' + matchobj.group()
-    return matchobj.group().replace(matchobj.group('pagefield'), '')
 
 def record_xml_output(rec, tags=None, order_fn=None):
     """Generates the XML for record 'rec' and returns it as a string

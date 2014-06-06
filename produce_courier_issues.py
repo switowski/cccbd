@@ -78,7 +78,7 @@ CFG_CCCBD_MONTHS_FRE = [
 
 CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN = 'CERN_BULLETIN'
 # CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'COURRIER_CERN'
-CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'BACKUP_COURRIER'
+CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'F'
 CFG_CCCBD_PUBLICATIONS = (
     CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN,
     CFG_CCCBD_PUBLICATIONS_CERN_COURRIER,
@@ -640,6 +640,9 @@ def run():
                                 if len(current_month_candidates_elements) != 1:
                                     _report("Not exactly one 269__c defined for %s" % (os.path.sep.join((dirpath, filename)),), exit = True)
                                 current_month_to_fix = [e.text for e in current_month_candidates_elements][0]
+                                # There are encoding issues with French letters so we need to encode the month properly
+                                # Otherwise we get UnicodeEncodeError: 'ascii' codec can't encode character...
+                                current_month_to_fix = current_month_to_fix.encode('utf8')
                                 with open(tmp_file) as f:
                                     newfile = f.read().replace(current_month_to_fix, current_date)
                                 open(tmp_file, "w").write(newfile)

@@ -8,7 +8,7 @@ from optparse import OptionParser
 from lxml import etree
 
 CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN = 'CERN_BULLETIN'
-# CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN = 'CBTEST'
+# CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'TEST_COURIER'
 CFG_CCCBD_PUBLICATIONS_CERN_COURRIER = 'NEW_COURRIER_CERN'
 CFG_CCCBD_PUBLICATIONS = (
     CFG_CCCBD_PUBLICATIONS_CERN_BULLETIN,
@@ -283,7 +283,8 @@ def _check_marc_content(datafield, subfield, value,
             # Issue numbers should not have leading "0"
             # For bulletins we need to remove both leading "0" from issues like "01-02"
             result = ( ( is_bulletin and len(current_issue) == 5 and value == re.sub("0", "", current_issue) ) or \
-                       ( len(current_issue) < 5 and value == current_issue.lstrip("0") ) )
+                       ( len(current_issue) < 5 and value == current_issue.lstrip("0") ) or \
+                         value == current_issue)
         elif subfield == "p":
             result = ( is_courier  and ( ( current_language.lower() == "e" and value == "CERN Courier"  ) or \
                                          ( current_language.lower() == "f" and value == "Courrier CERN" ) ) ) or \
